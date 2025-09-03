@@ -1,0 +1,168 @@
+---
+title: "Changelog"
+---
+<Update label="September 4, 2025" description="1.0.0">
+
+Update openapi.yaml to OAS v3.1.1
+</Update>
+
+<Update label="September 3, 2025" description="0.9.4">
+
+Improved transactions endpoint documentation
+</Update>
+
+<Update label="August 21, 2025" description="0.9.3">
+
+Clarified the webhooks create endpoint docs for use of resource_id attribute Removed docs for price_description from offers endpoint, it is not supported General improvements for security and stability, refactored code
+</Update>
+
+<Update label="August 15, 2025" description="0.9.2">
+
+Added filter[customer_id] to purchases, orders, and transactions endpoints Added transactions filter[name_or_email] parameter
+</Update>
+
+<Update label="August 14, 2025" description="0.9.1">
+
+Added /v1/purchases/:id/cancel_subscription endpoint
+</Update>
+
+<Update label="August 4, 2025" description="0.9.0">
+
+Added /v1/contact_notes endpoints: list, show, create, update, delete
+</Update>
+
+<Update label="August 1, 2025" description="0.8.0">
+
+Added outbound webhooks using /v1/hooks endpoints
+</Update>
+
+<Update label="July 31, 2025" description="0.7.0">
+
+Added orders endpoints for list and details
+
+Added order_items endpoints for list and details
+</Update>
+
+<Update label="July 21, 2025" description="0.6.0">
+
+Added form_submissions endpoints for list and details
+</Update>
+
+<Update label="June 27, 2025" description="0.5.0">
+
+Add/remove parameters for searching contacts and customers
+
+Improve search performance for contacts and customers
+
+Add endpoints for purchases, list, details, reactivate, and deactivate
+
+Add endpoints for website pages, blog posts, and landing pages
+
+Add url attribute to products and forms resources
+
+Bugfix: delete a contact then recreate with same email
+
+Add currency attribute to offer
+
+Sort contacts by created_at
+</Update>
+
+<Update label="April 11, 2025" description="0.5.0">
+
+New developer site https://developers.kajabi.com
+
+Add resource attribute definitions to docs
+
+Improve docs with comprehensive response examples using a variety of request parameters
+
+Add checkout url to offer resource
+
+Add endpoints for forms, including form submission
+
+Contacts related offers are linked by url vs listed by id
+
+Add publishing_option to module/lesson public api
+
+Add internal_title and payment info attributes to offer serializer
+
+Add refresh_token to oauth/token response
+
+Add transactions endpoints
+
+Add lessons.media relationship for courses
+</Update>
+
+<Update label="March 19, 2025" description="0.3.0">
+
+Add oauth revoke endpoint
+
+Improve docs for oauth token credential grant
+
+Add contacts filter params: search, has_product_id, has_tag_id, has_offer_id
+
+Add customers endpoints
+
+Add courses endpoints
+
+Add example responses to docs for page and filter parameters
+
+Improve docs for success responses
+
+Add forbidden error response examples
+
+Improve docs for granting and revoking offers
+</Update>
+
+<Update label="October 25, 2024" description="0.2.0">
+
+Credential exchange using Kajabi account api key/secret
+
+Add contacts offers relation endpoints to grant/revoke offers
+
+Add contacts relationship to offers
+
+Add products relationship to offers
+
+Add products endpoints
+
+Add offers endpoints
+</Update>
+
+<Update label="October 21, 2024" description="0.1.3">
+
+Add contact tag endpoints
+
+Add contacts tag relation endpoints to add/remove tags
+
+Document /contacts/{id}?include= parameter with tags example
+</Update>
+
+<Update label="October 11, 2024" description="0.1.2">
+
+Add /api/v1/custom_fields endpoint
+
+Add clarify filters for contacts in the openapi spec
+</Update>
+
+<Update label="October 3, 2024" description="0.1.1">
+
+Add sorting to contacts
+
+Add sparse fields to contacts
+
+Add filters to contacts list endpoint
+</Update>
+
+<Update label="July 22, 2024" description="0.1.0">
+
+Add contacts endpoints
+
+Add sites endpoints
+
+Add me endpoint for current user
+
+Add version endpoint
+
+Add oauth/token endpoint to authenticate with username/password
+</Update>
+

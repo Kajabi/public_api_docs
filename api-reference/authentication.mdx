@@ -1,0 +1,11 @@
+---
+title: "Authentication"
+---
+
+The `/v1/oauth/token` endpoint supports `client_credentials` grant type (OAuth 2) to request an `access_token`.
+
+This requires your `client_id` and `client_secret` which are available on the [User API Keys](https://app.kajabi.com/admin/settings/security) section of the Kajabi Admin Portal.
+
+* Custom User API Keys can be created with specific permissions.
+* Click the "Create User API Key" button, enter a name (e.g. "My project"), select the user and permissions, and click "Create".
+* For security purposes, you may "Delete" or "Rotate" the api credentials at any time; which will invalidate any access tokens granted with the credentials.
