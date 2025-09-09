@@ -5330,9 +5330,7 @@ paths:
         * `data` - parent object which includes the children/nested attributes:
         * `target_url` - The URL where webhook events will be sent
         * `event` - The type of event to subscribe to (see available events below), for example "tag_added"
-        * `resource_id` (optional) - Specific resource ID to filter events for, for example the id of the Contact Tag.
-
-        Note: The `resource_id` is necessary for some webhooks, like `tag_added` and `tag_removed`
+        * `resource_id` (optional) - Specific resource ID to filter events for, for example the id of the Contact Tag. When the property is omitted, the webhook will be triggered for all events of the specified type, as a wildcard webhook.
 
         ## Available Event Types
 
@@ -5345,7 +5343,7 @@ paths:
         | `tag_added` | Tag is added to a contact | `view:contacts` |
         | `tag_removed` | Tag is removed from a contact | `view:contacts` |
 
-        **Note**: You can only create webhooks for events you have permission to access based on your API key scopes.
+        **Note**: You can only create webhooks for events you have permission to access based on your API key scopes. For example to use tags you need the `view:contacts` scope, which is included in the account owner api key scope.
 
         ## Sample Payloads
         You can view sample webhook payloads for each event type:
@@ -5356,15 +5354,36 @@ paths:
         * `GET /api/v1/hooks/tag_added_sample`
         * `GET /api/v1/hooks/tag_removed_sample`
 
-        Example request:
+        Example request targeting a specific tag:
         ```json
         {
           "data": {
             "type": "hooks",
             "attributes": {
               "target_url": "https://example.com/webhook",
-              "event": "purchase",
+              "event": "tag_added",
               "resource_id": "123"
+            },
+            "relationships": {
+              "site": {
+                "data": {
+                  "id": "456",
+                  "type": "sites"
+                }
+              }
+            }
+          }
+        }
+        ```
+
+        Example request using a wildcard webhook:
+        ```json
+        {
+          "data": {
+            "type": "hooks",
+            "attributes": {
+              "target_url": "https://example.com/webhook",
+              "event": "tag_added"
             },
             "relationships": {
               "site": {
