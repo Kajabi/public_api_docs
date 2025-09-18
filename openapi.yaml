@@ -1,3 +1,4 @@
+---
 openapi: 3.1.1
 x-mint:
   mcp:
@@ -3421,7 +3422,7 @@ paths:
         }
         ```
         ## Using Indexed Data Search
-
+        ```json
         {
           "data": [{
             "id": "456",
