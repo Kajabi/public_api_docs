@@ -1,7 +1,7 @@
 # Kajabi Public API Documentation
 
 - openapi.yaml file is used to generate the API documentation
-- Mintlify dashboard is used to configure and manage the https://developers.kajabi.com
+- Mintlify dashboard is used to configure and manage https://developers.kajabi.com
   - This repo is connected, a commit on main triggers site update
 
 **[see Mintflify quickstart guide](https://starter.mintlify.com/quickstart)**
