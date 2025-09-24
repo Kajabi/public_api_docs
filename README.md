@@ -1,16 +1,10 @@
-# Mintlify Starter Kit
+# Kajabi Public API Documentation
 
-Use the starter kit to get your docs deployed and ready to customize.
+- openapi.yaml file is used to generate the API documentation
+- Mintlify dashboard is used to configure and manage the https://developers.kajabi.com
+  - This repo is connected, a commit on main triggers site update
 
-Click the green **Use this template** button at the top of this repo to copy the Mintlify starter kit. The starter kit contains examples with
-
-- Guide pages
-- Navigation
-- Customizations
-- API reference pages
-- Use of popular components
-
-**[Follow the full quickstart guide](https://starter.mintlify.com/quickstart)**
+**[see Mintflify quickstart guide](https://starter.mintlify.com/quickstart)**
 
 ## Development
 
@@ -26,11 +20,13 @@ Run the following command at the root of your documentation, where your `docs.js
 mint dev
 ```
 
-View your local preview at `http://localhost:3000`.
+View your local preview at `http://localhost:3000`. If you are already running on port 3000 the site will run on the next available port, e.g. 3001
 
 ## Publishing changes
 
-Install our GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app) to propagate changes from your repo to your deployment. Changes are deployed to production automatically after pushing to the default branch.
+The GitHub app is connected, see [dashboard](https://dashboard.mintlify.com/settings/organization/github-app) 
+
+Changes are deployed to production automatically after pushing to the default branch.
 
 ## Need help?
 
