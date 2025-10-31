@@ -63,6 +63,10 @@
       {
         "label": "Login",
         "href": "https://app.kajabi.com/login"
+      },
+      {
+        "label": "Leave Feedback",
+        "href": "https://kajabi.typeform.com/to/CO8xXiGz"
       }
     ],
     "primary": {
