@@ -129,15 +129,6 @@ The site includes several integrated links configured in `docs.json`:
 4. Test locally to ensure formatting is correct
 5. Commit and push to deploy
 
-### Branch Naming Conventions
-
-Use descriptive branch names that indicate the purpose of your changes:
-- `add-[feature]` - for adding new content or features
-- `update-[content]` - for updating existing documentation
-- `fix-[issue]` - for bug fixes or corrections
-
-Example: `add-feedback-link` (current branch)
-
 ## Publishing Changes
 
 ### Automatic Deployment
