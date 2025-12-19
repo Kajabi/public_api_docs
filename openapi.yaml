@@ -1,10 +1,11 @@
+---
 openapi: 3.1.1
 x-mint:
   mcp:
     enabled: true
 info:
   title: Kajabi API V1
-  version: 1.0.0
+  version: 1.0.1
   description: |
     ## Public API
     * Server URL `https://api.kajabi.com`
@@ -72,6 +73,12 @@ paths:
             application/json:
               schema:
                 "$ref": "#/components/schemas/oauth_token_response"
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/errors_authentication_failed"
         '401':
           description: Unauthorized
           content:
@@ -172,7 +179,7 @@ paths:
         * `GET /v1/blog_posts?filter[title_start]=Announcing`
         * `GET /v1/blog_posts?filter[title_cont]=Announcing`
       tags:
-      - Sites
+      - Blog posts
       security:
       - Bearer: []
       parameters:
@@ -261,7 +268,7 @@ paths:
         }
         ```
       tags:
-      - Sites
+      - Blog posts
       security:
       - Bearer: []
       parameters:
@@ -2711,7 +2718,7 @@ paths:
         }
         ```
       tags:
-      - Products
+      - Courses
       security:
       - Bearer: []
       parameters:
@@ -2991,7 +2998,7 @@ paths:
         }
         ```
       tags:
-      - Products
+      - Courses
       security:
       - Bearer: []
       parameters:
@@ -4244,9 +4251,88 @@ paths:
         description: Partial attributes as specified, e.g. fields[customers]=name,email
         schema:
           type: string
+      - name: include
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: filter[products_search]
+        in: query
+        required: false
+        description: Search products by title
+        schema:
+          type: string
+      - name: include
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: filter[products_page]
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: filter[products_per]
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: include
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: filter[offers_search]
+        in: query
+        required: false
+        description: Search offers by title or internal title
+        schema:
+          type: string
+      - name: include
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: filter[offers_page]
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: filter[offers_per]
+        in: query
+        required: false
+        schema:
+          type: integer
+      - name: include
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: filter[products_search]
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: filter[offers_search]
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: filter[products_search]
+        in: query
+        required: false
+        description: Should be ignored when include parameter is missing
+        schema:
+          type: string
+      - name: filter[offers_search]
+        in: query
+        required: false
+        description: Should be ignored when include parameter is missing
+        schema:
+          type: string
       responses:
         '200':
-          description: Success, shows details for specified customer
+          description: Success - filters ignored when include parameter not present
           content:
             application/vnd.api+json:
               schema:
@@ -5238,7 +5324,7 @@ paths:
                   - attributes
               required:
               - data
-  "/api/v1/hooks":
+  "/v1/hooks":
     get:
       summary: List hooks
       description: |
@@ -5247,19 +5333,19 @@ paths:
         ## Pagination
         Use `page[number]` and `page[size]` parameters to paginate results:
         ### Get first page of 10 items
-        * `GET /api/v1/hooks?page[number]=1&page[size]=10`
+        * `GET /v1/hooks?page[number]=1&page[size]=10`
         ### Get second page of 25 items
-        * `GET /api/v1/hooks?page[number]=2&page[size]=25`
+        * `GET /v1/hooks?page[number]=2&page[size]=25`
 
         The response includes pagination links and meta data:
         ```json
         {
           "links": {
-            "self": "https://api.kajabi.com/api/v1/hooks?page[number]=2&page[size]=10",
-            "first": "https://api.kajabi.com/api/v1/hooks?page[number]=1&page[size]=10",
-            "prev": "https://api.kajabi.com/api/v1/hooks?page[number]=1&page[size]=10",
-            "next": "https://api.kajabi.com/api/v1/hooks?page[number]=3&page[size]=10",
-            "last": "https://api.kajabi.com/api/v1/hooks?page[number]=5&page[size]=10"
+            "self": "https://api.kajabi.com/v1/hooks?page[number]=2&page[size]=10",
+            "first": "https://api.kajabi.com/v1/hooks?page[number]=1&page[size]=10",
+            "prev": "https://api.kajabi.com/v1/hooks?page[number]=1&page[size]=10",
+            "next": "https://api.kajabi.com/v1/hooks?page[number]=3&page[size]=10",
+            "last": "https://api.kajabi.com/v1/hooks?page[number]=5&page[size]=10"
           },
           "meta": {
             "total_pages": 5,
@@ -5271,7 +5357,7 @@ paths:
         ## Filtering
         Use `filter[event_eq]` parameter to filter webhooks by event type:
         ### Get webhooks for purchase events only
-        * `GET /api/v1/hooks?filter[event_eq]=purchase`
+        * `GET /v1/hooks?filter[event_eq]=purchase`
       tags:
       - Webhooks
       security:
@@ -5347,12 +5433,12 @@ paths:
 
         ## Sample Payloads
         You can view sample webhook payloads for each event type:
-        * `GET /api/v1/hooks/purchase_sample`
-        * `GET /api/v1/hooks/payment_succeeded_sample`
-        * `GET /api/v1/hooks/order_created_sample`
-        * `GET /api/v1/hooks/form_submission_sample`
-        * `GET /api/v1/hooks/tag_added_sample`
-        * `GET /api/v1/hooks/tag_removed_sample`
+        * `GET /v1/hooks/purchase_sample`
+        * `GET /v1/hooks/payment_succeeded_sample`
+        * `GET /v1/hooks/order_created_sample`
+        * `GET /v1/hooks/form_submission_sample`
+        * `GET /v1/hooks/tag_added_sample`
+        * `GET /v1/hooks/tag_removed_sample`
 
         Example request targeting a specific tag:
         ```json
@@ -5470,7 +5556,7 @@ paths:
                   - relationships
               required:
               - data
-  "/api/v1/hooks/{id}":
+  "/v1/hooks/{id}":
     get:
       summary: Hook details
       description: Returns specific hook based on it ID
@@ -5543,7 +5629,7 @@ paths:
             application/vnd.api+json:
               schema:
                 "$ref": "#/components/schemas/errors_not_found"
-  "/api/v1/hooks/tag_added_sample":
+  "/v1/hooks/tag_added_sample":
     get:
       summary: Tag added sample
       description: |
@@ -5656,8 +5742,8 @@ paths:
                         type: string
                         enum:
                         - contact_tags
-                    attributes:
-                      "$ref": "#/components/schemas/contact_tag_attributes"
+                      attributes:
+                        "$ref": "#/components/schemas/contact_tags_attributes"
         '401':
           description: Unauthorized, Authorization header is missing or invalid
           content:
@@ -5670,7 +5756,7 @@ paths:
             application/vnd.api+json:
               schema:
                 "$ref": "#/components/schemas/errors_forbidden"
-  "/api/v1/hooks/tag_removed_sample":
+  "/v1/hooks/tag_removed_sample":
     get:
       summary: Tag removed sample
       description: |
@@ -5783,8 +5869,8 @@ paths:
                         type: string
                         enum:
                         - contact_tags
-                    attributes:
-                      "$ref": "#/components/schemas/contact_tag_attributes"
+                      attributes:
+                        "$ref": "#/components/schemas/contact_tags_attributes"
         '401':
           description: Unauthorized, Authorization header is missing or invalid
           content:
@@ -5797,7 +5883,7 @@ paths:
             application/vnd.api+json:
               schema:
                 "$ref": "#/components/schemas/errors_forbidden"
-  "/api/v1/hooks/form_submission_sample":
+  "/v1/hooks/form_submission_sample":
     get:
       summary: Form submission sample
       description: |
@@ -5921,8 +6007,8 @@ paths:
                         type: string
                         enum:
                         - forms
-                    attributes:
-                      "$ref": "#/components/schemas/form_attributes"
+                      attributes:
+                        "$ref": "#/components/schemas/form_attributes"
         '401':
           description: Unauthorized, Authorization header is missing or invalid
           content:
@@ -5935,7 +6021,7 @@ paths:
             application/vnd.api+json:
               schema:
                 "$ref": "#/components/schemas/errors_forbidden"
-  "/api/v1/hooks/purchase_sample":
+  "/v1/hooks/purchase_sample":
     get:
       summary: Purchase sample
       description: |
@@ -6150,8 +6236,8 @@ paths:
                         type: string
                         enum:
                         - customers
-                    attributes:
-                      "$ref": "#/components/schemas/customer_attributes"
+                      attributes:
+                        "$ref": "#/components/schemas/customers_attributes"
                   - type: object
                     properties:
                       id:
@@ -6160,8 +6246,8 @@ paths:
                         type: string
                         enum:
                         - offers
-                    attributes:
-                      "$ref": "#/components/schemas/offer_attributes"
+                      attributes:
+                        "$ref": "#/components/schemas/offers_attributes"
         '401':
           description: Unauthorized, Authorization header is missing or invalid
           content:
@@ -6174,7 +6260,7 @@ paths:
             application/vnd.api+json:
               schema:
                 "$ref": "#/components/schemas/errors_forbidden"
-  "/api/v1/hooks/payment_succeeded_sample":
+  "/v1/hooks/payment_succeeded_sample":
     get:
       summary: Payment succeeded sample
       description: |
@@ -6324,8 +6410,8 @@ paths:
                         type: string
                         enum:
                         - customers
-                    attributes:
-                      "$ref": "#/components/schemas/customer_attributes"
+                      attributes:
+                        "$ref": "#/components/schemas/customers_attributes"
                   - type: object
                     properties:
                       id:
@@ -6334,8 +6420,8 @@ paths:
                         type: string
                         enum:
                         - offers
-                    attributes:
-                      "$ref": "#/components/schemas/offer_attributes"
+                      attributes:
+                        "$ref": "#/components/schemas/offers_attributes"
         '401':
           description: Unauthorized, Authorization header is missing or invalid
           content:
@@ -6348,7 +6434,7 @@ paths:
             application/vnd.api+json:
               schema:
                 "$ref": "#/components/schemas/errors_forbidden"
-  "/api/v1/hooks/order_created_sample":
+  "/v1/hooks/order_created_sample":
     get:
       summary: Order created sample
       description: |
@@ -6568,8 +6654,8 @@ paths:
                         type: string
                         enum:
                         - customers
-                    attributes:
-                      "$ref": "#/components/schemas/customer_attributes"
+                      attributes:
+                        "$ref": "#/components/schemas/customers_attributes"
                   - type: object
                     properties:
                       id:
@@ -6578,8 +6664,8 @@ paths:
                         type: string
                         enum:
                         - offers
-                    attributes:
-                      "$ref": "#/components/schemas/offer_attributes"
+                      attributes:
+                        "$ref": "#/components/schemas/offers_attributes"
                   - type: object
                     properties:
                       id:
@@ -6588,41 +6674,15 @@ paths:
                         type: string
                         enum:
                         - orders
-                    attributes:
-                      "$ref": "#/components/schemas/orders_attributes"
-                    relationships:
-                      type: object
-                      properties:
-                        site:
-                          type: object
-                          properties:
-                            data:
-                              type: object
-                              properties:
-                                id:
-                                  type: string
-                                type:
-                                  type: string
-                                  enum:
-                                  - sites
-                        customer:
-                          type: object
-                          properties:
-                            data:
-                              type: object
-                              properties:
-                                id:
-                                  type: string
-                                type:
-                                  type: string
-                                  enum:
-                                  - customers
-                        order_items:
-                          type: object
-                          properties:
-                            data:
-                              type: array
-                              items:
+                      attributes:
+                        "$ref": "#/components/schemas/orders_attributes"
+                      relationships:
+                        type: object
+                        properties:
+                          site:
+                            type: object
+                            properties:
+                              data:
                                 type: object
                                 properties:
                                   id:
@@ -6630,13 +6690,11 @@ paths:
                                   type:
                                     type: string
                                     enum:
-                                    - order_items
-                        payment_transactions:
-                          type: object
-                          properties:
-                            data:
-                              type: array
-                              items:
+                                    - sites
+                          customer:
+                            type: object
+                            properties:
+                              data:
                                 type: object
                                 properties:
                                   id:
@@ -6644,7 +6702,35 @@ paths:
                                   type:
                                     type: string
                                     enum:
-                                    - transactions
+                                    - customers
+                          order_items:
+                            type: object
+                            properties:
+                              data:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    id:
+                                      type: string
+                                    type:
+                                      type: string
+                                      enum:
+                                      - order_items
+                          payment_transactions:
+                            type: object
+                            properties:
+                              data:
+                                type: array
+                                items:
+                                  type: object
+                                  properties:
+                                    id:
+                                      type: string
+                                    type:
+                                      type: string
+                                      enum:
+                                      - transactions
                   - type: object
                     properties:
                       id:
@@ -6653,23 +6739,23 @@ paths:
                         type: string
                         enum:
                         - order_items
-                    attributes:
-                      "$ref": "#/components/schemas/order_items_attributes"
-                    relationships:
-                      type: object
-                      properties:
-                        order:
-                          type: object
-                          properties:
-                            data:
-                              type: object
-                              properties:
-                                id:
-                                  type: string
-                                type:
-                                  type: string
-                                  enum:
-                                  - orders
+                      attributes:
+                        "$ref": "#/components/schemas/order_items_attributes"
+                      relationships:
+                        type: object
+                        properties:
+                          order:
+                            type: object
+                            properties:
+                              data:
+                                type: object
+                                properties:
+                                  id:
+                                    type: string
+                                  type:
+                                    type: string
+                                    enum:
+                                    - orders
         '401':
           description: Unauthorized, Authorization header is missing or invalid
           content:
@@ -6682,6 +6768,268 @@ paths:
             application/vnd.api+json:
               schema:
                 "$ref": "#/components/schemas/errors_forbidden"
+  "/v1/kajabi_payments_payouts":
+    get:
+      summary: List payouts
+      description: |
+        List of Kajabi Payments payouts for a site. Payouts represent transfers of funds from Kajabi to the site owner's connected bank account or payment method.
+
+        **Note**: Date fields are returned in UTC:
+        * `initiated_date` - Payout creation timestamp in UTC
+        * `estimated_arrival_date` - Expected arrival timestamp in UTC
+
+        ## Pagination
+        Use `page[number]` parameter to paginate results:
+        ### Get first page
+        * `GET /v1/kajabi_payments_payouts?page[number]=1&filter[site_id]=123`
+        ### Get second page
+        * `GET /v1/kajabi_payments_payouts?page[number]=2&filter[site_id]=123`
+
+        The response includes pagination links and meta data:
+        ```json
+        {
+          "links": {
+            "self": "https://api.kajabi.com/v1/kajabi_payments_payouts?page[number]=2&filter[site_id]=123",
+            "first": "https://api.kajabi.com/v1/kajabi_payments_payouts?page[number]=1&filter[site_id]=123",
+            "prev": "https://api.kajabi.com/v1/kajabi_payments_payouts?page[number]=1&filter[site_id]=123",
+            "next": "https://api.kajabi.com/v1/kajabi_payments_payouts?page[number]=3&filter[site_id]=123",
+            "last": "https://api.kajabi.com/v1/kajabi_payments_payouts?page[number]=5&filter[site_id]=123"
+          },
+          "meta": {
+            "total": 50,
+            "pagination": {
+              "current": 2,
+              "first": 1,
+              "prev": 1,
+              "next": 3,
+              "last": 5,
+              "records": 10,
+            }
+          }
+        }
+        ```
+
+        ## Filtering by Site
+        Use the `filter[site_id]` parameter to filter payouts by site (required):
+        ### Get payouts for site with ID 123
+        * `GET /v1/kajabi_payments_payouts?filter[site_id]=123`
+
+        ## Filtering by Status
+        Use the `filter[status]` parameter to filter payouts by status:
+        ### Get paid payouts for site with ID 123
+        * `GET /v1/kajabi_payments_payouts?filter[site_id]=123&filter[status]=paid`
+
+        Valid status values:
+        * `pending` - The payout has been created but hasn't been submitted to the bank yet
+        * `in_transit` - The payout has been submitted to the bank and is being processed
+        * `paid` - The payout succeeded and the money has successfully reached your bank account
+        * `failed` - Something went wrong and the payout couldn't be transferred to your account
+        * `canceled` - The payout was canceled before it could complete
+
+        ## Date Range Filtering
+        Use the `filter[start_date]` and `filter[end_date]` parameters to filter payouts by date range:
+        ### Get payouts between January 1st and January 31st, 2024
+        * `GET /v1/kajabi_payments_payouts?filter[site_id]=123&filter[start_date]=2024-01-01&filter[end_date]=2024-01-31`
+
+        Response will include only payouts within the specified date range.
+
+        ## Using Multiple Parameters Together
+        You can combine multiple parameters to filter the response:
+        ### Get paginated, filtered payouts
+        * `GET /v1/kajabi_payments_payouts?page[number]=1&filter[site_id]=123&filter[status]=paid&filter[start_date]=2024-01-01&filter[end_date]=2024-01-31`
+
+        Response will include paginated payouts matching all filters:
+        ```json
+        {
+          "data": [{
+            "id": "payout_abc123",
+            "type": "kajabi_payments_payouts",
+            "attributes": {
+              "status": "Paid",
+              "amount": 1500.00,
+              "currency": "USD",
+              "initiated_date": "2024-01-10T10:00:00.000Z",
+              "estimated_arrival_date": "2024-01-17T10:00:00.000Z",
+              "bank_account": "Chase Bank - 1234"
+            }
+          }]
+        }
+        ```
+      tags:
+      - Kajabi Payments Payouts
+      security:
+      - Bearer: []
+      parameters:
+      - name: page[number]
+        in: query
+        required: false
+        description: Page number for pagination, for example ?page[number]=2
+        schema:
+          type: number
+      - name: filter[site_id]
+        in: query
+        required: true
+        description: Site ID to fetch payouts for (required), for example ?filter[site_id]=123
+        schema:
+          type: string
+      - name: filter[status]
+        in: query
+        required: false
+        description: Filter by payout status (pending, paid, failed, canceled), for
+          example ?filter[status]=paid
+        schema:
+          type: string
+      - name: filter[start_date]
+        in: query
+        required: false
+        description: Filter payouts after this date (ISO 8601), for example ?filter[start_date]=2024-01-01
+        schema:
+          type: string
+      - name: filter[end_date]
+        in: query
+        required: false
+        description: Filter payouts before this date (ISO 8601), for example ?filter[end_date]=2024-12-31
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success, returns empty list when no payouts exist
+        '401':
+          description: Unauthorized, Authorization header is missing or invalid
+          content:
+            application/vnd.api+json:
+              schema:
+                "$ref": "#/components/schemas/errors_unauthorized"
+        '403':
+          description: Forbidden, insufficient permission to access the resource
+          content:
+            application/vnd.api+json:
+              schema:
+                "$ref": "#/components/schemas/errors_forbidden"
+  "/v1/kajabi_payments_payouts/{id}":
+    get:
+      summary: Get payout details
+      description: |
+        Get detailed information about a specific Kajabi Payments payout, including all associated transactions.
+
+        **Note**: Date fields are returned in UTC:
+        * `initiated_date` - Payout creation timestamp in UTC
+        * `estimated_arrival_date` - Expected arrival timestamp in UTC
+        * `transactions[].created_at` - Transaction timestamp in UTC
+
+        ## Transaction Fields
+        Each transaction in the `transactions` array includes:
+        * **Transaction Type** - Whether or not this transaction was a sale, refund, or adjustment
+        * **Pricing Type** - When this is a sale this is the offer's pricing type, i.e. one-time, subscription, or payment plan
+        * **Sales Tax** - The sales tax collected for this transaction
+        * **Amount** - The transaction amount
+        * **Currency** - Three-letter currency code (USD, EUR, GBP, etc.)
+        * **Fee** - The transaction processing fee
+        * **Net** - The transaction net amount (amount - fee)
+        * **Customer ID** - Customer ID associated with the transaction
+        * **Customer Name** - Customer's full name
+        * **Customer Email** - Customer's email address
+        * **Offer ID** - When a sale or refund, the ID(s) of the purchased offer
+        * **Offer Title** - When a sale or refund, the title(s) of the purchased offer
+        * **Provider** - The payment processor (Kajabi Payments, Stripe, PayPal, etc.)
+        * **Payment Method** - For a sale or refund, the payment method that was used (Credit Card, etc.)
+        * **Created At** - When the transaction occurred (in UTC)
+        * **Coupon Used** - For a sale or refund, the coupon code if one was applied
+        * **Presented Amount** - The transaction original transaction amount (before currency conversion)
+        * **Presented Currency** - The transaction original currency code
+        * **Exchange Rate** - The currency exchange rate applied
+        * **Quantity** - The quantity of the offer that was purchased
+        * **Order Number** - For a sale or refund, the order number when an order was purchased
+
+        ## Transaction Types
+        * `Sale` - All payments and that were received as part of this payout
+        * `Refund` - Any refunds that occurred as part of this payout
+        * `Adjustment` - All other adjustments that occurred as a part of this payout
+
+        ## Example Response
+        ```json
+        {
+          "data": {
+            "id": "payout_abc123",
+            "type": "kajabi_payments_payouts",
+            "attributes": {
+              "status": "Paid",
+              "amount": 1450.50,
+              "currency": "USD",
+              "initiated_date": "2024-01-10T10:00:00.000Z",
+              "estimated_arrival_date": "2024-01-17T10:00:00.000Z",
+              "bank_account": "Chase Bank - 1234",
+              "transactions": [
+                {
+                  "transaction_type": "Sales",
+                  "pricing_type": "Subscription",
+                  "sales_tax": 0.0,
+                  "amount": 99.00,
+                  "currency": "USD",
+                  "fee": 3.17,
+                  "net": 95.83,
+                  "customer_id": 789,
+                  "customer_name": "John Doe",
+                  "customer_email": "john@example.com",
+                  "offer_ids": [
+                    101
+                  ],
+                  "offer_titles": [
+                    "Premium Membership"
+                  ],
+                  "provider": "Kajabi Payments",
+                  "payment_method": "Visa",
+                  "created_at": "2024-01-08T14:30:00.000Z",
+                  "coupon_used": "SAVE20",
+                  "presented_amount": 99.00,
+                  "presented_currency": "USD",
+                  "exchange_rate": 1.0,
+                  "quantity": 1,
+                  "order_number": "ORD-12345"
+                }
+              ]
+            }
+          }
+        }
+        ```
+      tags:
+      - Kajabi Payments Payouts
+      security:
+      - Bearer: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: Payout ID, for example payout_abc123
+        schema:
+          type: string
+      - name: filter[site_id]
+        in: query
+        required: true
+        description: Site ID to authorize access (required), for example ?filter[site_id]=123
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success, returns payout details with all transactions
+        '401':
+          description: Unauthorized, Authorization header is missing or invalid
+          content:
+            application/vnd.api+json:
+              schema:
+                "$ref": "#/components/schemas/errors_unauthorized"
+        '403':
+          description: Forbidden, insufficient permission to access the resource
+          content:
+            application/vnd.api+json:
+              schema:
+                "$ref": "#/components/schemas/errors_forbidden"
+        '404':
+          description: Not Found, payout does not exist or user doesn't have access
+          content:
+            application/vnd.api+json:
+              schema:
+                "$ref": "#/components/schemas/errors_not_found"
   "/v1/landing_pages":
     get:
       summary: List landing pages
@@ -6728,7 +7076,7 @@ paths:
         * `GET /v1/landing_pages?filter[title_start]=Course`
         * `GET /v1/landing_pages?filter[title_cont]=Landing`
       tags:
-      - Sites
+      - Landing pages
       security:
       - Bearer: []
       parameters:
@@ -6816,7 +7164,7 @@ paths:
         }
         ```
       tags:
-      - Sites
+      - Landing pages
       security:
       - Bearer: []
       parameters:
@@ -7797,6 +8145,305 @@ paths:
             application/vnd.api+json:
               schema:
                 "$ref": "#/components/schemas/errors_not_found"
+  "/v1/podcasts":
+    get:
+      summary: List podcasts
+      description: |
+        Podcasts for a site
+        ## Pagination
+        Use `page[number]` and `page[size]` parameters to paginate results:
+        ### Get first page of 10 items
+        * `GET /v1/podcasts?page[number]=1&page[size]=10`
+        ### Get second page of 25 items
+        * `GET /v1/podcasts?page[number]=2&page[size]=25`
+
+        The response includes pagination links and meta data:
+        ```json
+        {
+          "links": {
+            "self": "https://api.kajabi.com/v1/podcasts?page[number]=2&page[size]=10",
+            "first": "https://api.kajabi.com/v1/podcasts?page[number]=1&page[size]=10",
+            "prev": "https://api.kajabi.com/v1/podcasts?page[number]=1&page[size]=10",
+            "next": "https://api.kajabi.com/v1/podcasts?page[number]=3&page[size]=10",
+            "last": "https://api.kajabi.com/v1/podcasts?page[number]=5&page[size]=10"
+          },
+          "meta": {
+            "total_pages": 5,
+            "total_count": 50,
+            "current_page": 2
+          }
+        }
+        ```
+        ## Sorting
+        Use the `sort` parameter to sort the results:
+        ### Sort by title in ascending order
+        * `GET /v1/podcasts?sort=title`
+        ### Sort by title in descending order
+        * `GET /v1/podcasts?sort=-title`
+
+        Response will include podcasts sorted by the specified field
+        ```json
+        {
+          "data": [
+            {
+              "id": "123",
+              "type": "podcasts",
+              "attributes": {
+                "title": "My Podcast A",
+                "description": "A great podcast about technology"
+              }
+            },
+            {
+              "id": "456",
+              "type": "podcasts",
+              "attributes": {
+                "title": "My Podcast B",
+                "description": "Another great podcast about business"
+              }
+            }
+          ]
+        }
+        ```
+        ## Sparse Fields
+        Use the `fields[podcasts]` parameter to request only specific attributes:
+        ### Only return title and description attributes
+        * `GET /v1/podcasts?fields[podcasts]=title,description`
+
+        Response will only include requested fields
+        ```json
+        {
+          "data": [{
+            "id": "123",
+            "type": "podcasts",
+            "attributes": {
+              "title": "My Podcast A",
+              "description": "A great podcast about technology"
+            }
+          }]
+        }
+        ```
+        ## Filter by Site ID
+        Use the `filter[site_id]` parameter to get podcasts for a specific site:
+        ### Get podcasts for site with ID 123
+        * `GET /v1/podcasts?filter[site_id]=123`
+
+        Response will only include podcasts for that site
+        ```json
+        {
+          "data": [{
+            "id": "456",
+            "type": "podcasts",
+            "attributes": {
+              "title": "My Podcast",
+              "description": "A great podcast"
+            }
+          }]
+        }
+        ```
+      tags:
+      - Podcasts
+      security:
+      - Bearer: []
+      parameters:
+      - name: filter[site_id]
+        in: query
+        required: false
+        description: Filter by site ID, for example ?filter[site_id]=123
+        schema:
+          type: string
+      - name: filter[title_eq]
+        in: query
+        required: false
+        description: Filter by exact title match, for example ?filter[title_eq]=My
+          Podcast
+        schema:
+          type: string
+      - name: filter[title_cont]
+        in: query
+        required: false
+        description: Filter by title containing text, for example ?filter[title_cont]=technology
+        schema:
+          type: string
+      - name: filter[status_eq]
+        in: query
+        required: false
+        description: Filter by status, for example ?filter[status_eq]=ready
+        schema:
+          type: string
+      - name: filter[show_type_eq]
+        in: query
+        required: false
+        description: Filter by show type, for example ?filter[show_type_eq]=episodic
+        schema:
+          type: string
+      - name: sort
+        in: query
+        required: false
+        description: Sort results by field, for example ?sort=title or ?sort=-title
+          (descending)
+        schema:
+          type: string
+      - name: page[number]
+        in: query
+        required: false
+        description: Page number for pagination, for example ?page[number]=1
+        schema:
+          type: integer
+      - name: page[size]
+        in: query
+        required: false
+        description: Number of items per page, for example ?page[size]=10
+        schema:
+          type: integer
+      - name: fields[podcasts]
+        in: query
+        required: false
+        description: Comma-separated list of fields to include, for example ?fields[podcasts]=title,description
+        schema:
+          type: string
+      responses:
+        '200':
+          description: List of podcasts
+          content:
+            application/vnd.api+json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        type:
+                          type: string
+                          enum:
+                          - podcasts
+                        attributes:
+                          "$ref": "#/components/schemas/podcasts_attributes"
+                        relationships:
+                          type: object
+                          properties:
+                            site:
+                              type: object
+                              properties:
+                                data:
+                                  "$ref": "#/components/schemas/resource_identifier"
+                  links:
+                    type: object
+                    properties:
+                      self:
+                        type: string
+                      first:
+                        type: string
+                      prev:
+                        type: string
+                      next:
+                        type: string
+                      last:
+                        type: string
+                  meta:
+                    type: object
+                    properties:
+                      total_pages:
+                        type: integer
+                      total_count:
+                        type: integer
+                      current_page:
+                        type: integer
+        '401':
+          description: Unauthorized
+          content:
+            application/vnd.api+json:
+              schema:
+                "$ref": "#/components/schemas/errors_unauthorized"
+        '403':
+          description: Forbidden
+          content:
+            application/vnd.api+json:
+              schema:
+                "$ref": "#/components/schemas/errors_forbidden"
+  "/v1/podcasts/{id}":
+    get:
+      summary: Show podcast
+      description: |
+        Get details for a specific podcast
+        ## Attributes
+        - **title**: The podcast title
+        - **description**: The podcast description
+        - **language**: The podcast language (e.g., "en", "es")
+        - **owner_email**: The podcast owner's email address
+        - **owner_name**: The podcast owner's name
+        - **status**: The podcast status (ready, importing, failed)
+        - **show_type**: The show type (episodic, serial)
+        - **thumbnail_url**: URL to the podcast thumbnail image
+        - **cover_art_url**: URL to the podcast cover art image
+        - **categories**: Array of podcast categories
+        - **directories**: Array of podcast directories
+        - **migrated_to_url**: URL if podcast has been migrated
+        - **migrated**: Boolean indicating if podcast has been migrated
+        - **public**: Boolean indicating if podcast is public
+        - **ready**: Boolean indicating if podcast is ready
+        - **distribution_ready**: Boolean indicating if podcast is ready for distribution
+        - **created_at**: ISO 8601 date-time when podcast was created (read-only)
+        - **updated_at**: ISO 8601 date-time when podcast was last updated (read-only)
+      tags:
+      - Podcasts
+      security:
+      - Bearer: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: Podcast ID
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Podcast details
+          content:
+            application/vnd.api+json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      type:
+                        type: string
+                        enum:
+                        - podcasts
+                      attributes:
+                        "$ref": "#/components/schemas/podcasts_attributes"
+                      relationships:
+                        type: object
+                        properties:
+                          site:
+                            type: object
+                            properties:
+                              data:
+                                "$ref": "#/components/schemas/resource_identifier"
+        '401':
+          description: Unauthorized
+          content:
+            application/vnd.api+json:
+              schema:
+                "$ref": "#/components/schemas/errors_unauthorized"
+        '403':
+          description: Forbidden
+          content:
+            application/vnd.api+json:
+              schema:
+                "$ref": "#/components/schemas/errors_forbidden"
+        '404':
+          description: Not Found
+          content:
+            application/vnd.api+json:
+              schema:
+                "$ref": "#/components/schemas/errors_not_found"
   "/v1/products":
     get:
       summary: List products
@@ -8378,7 +9025,11 @@ paths:
         ## Purchase Attributes
         * `amount_in_cents` (integer) - Price of the purchase in cents
         * `payment_type` (string) - Type of payment
+        * `trial` (integer) - Number of trial days. (subscription and payment plans only)
+        * `trial_end_at` (string) - Date the trial ends
         * `multipay_payments_made` (integer) - Number of payments made
+        * `payment_plan_total_payments` (integer) - Total number of payments in the payment plan
+        * `status` (string) - The status of the purchase. For one-time purchases this will match the transaction detail status. For subscriptions and payment plans this status represents the status of the plan as compared to the transaction status which represents the individual payment.
         * `opt_in` (boolean) - Whether the purchase was opt-in
         * `raw_extra_contact_information` (object) - Extra contact information
         * `currency` (string) - Currency of the purchase
@@ -9106,6 +9757,7 @@ paths:
           The transaction system is a critical part of Kajabi's payment infrastructure, handling all monetary operations while maintaining detailed records for accounting, reporting, and compliance purposes.
 
           ## Transaction Attributes
+          * `provider` (string) - The payment processor used for the payment
           * `action` (string) - Indicate the type of transaction:
             * `charge` - One-time payment
             * `refund` - Money returned to customer
@@ -9122,6 +9774,7 @@ paths:
           * `payment_type` (string) - Indicates the payment structure (nullable)
           * `amount_in_cents` (integer) - The USD price in cents (for precise decimal handling) can be negative for refunds
           * `sales_tax_in_cents` (integer) - The USD sales tax in cents (for precise decimal handling)
+          * `payment_fee_in_cents` (integer) - Payment processing fee associated with the transaction (Kajabi Payments only)
           * `currency` (string) - String representing the currency code (nullable) automatically upcased
             * Defaults to "USD" if not specified
           * `currency_symbol` (string) - String representing the currency symbol (nullable)
@@ -9130,6 +9783,9 @@ paths:
             * Includes currency symbol
             * Does not include currency code
             * Example: "$19.99"
+          * `settlement_amount_in_cents` (integer) - Price of the payment in cents based on the settlement currency (Kajabi Payments only)
+          * `settlement_fee_amount_in_cents` (integer) - Payment processing fee associated with the transaction based on the settlement currency (Kajabi Payments only)
+          * `settlement_currency` (string) - Currency of the payment based on settlement, typically the currency of the attached bank account (Kajabi Payments only)
           * `created_at` (string) - The creation date and time, ISO date string format (read-only)
 
           ## Sparse Fields
@@ -10235,11 +10891,13 @@ components:
         created_at:
           type: string
           format: date-time
+          nullable: true
           readOnly: true
           description: ISO 8601 date-time, read only
         updated_at:
           type: string
           format: date-time
+          nullable: true
           readOnly: true
           description: ISO 8601 date-time, read only
     forms_show_response:
@@ -11713,6 +12371,76 @@ components:
       properties:
         error:
           type: string
+    podcasts_attributes:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        language:
+          type: string
+        owner_email:
+          type: string
+        author:
+          type: string
+          nullable: true
+        status:
+          type: string
+          enum:
+          - ready
+          - importing
+          - failed
+        show_type:
+          type: string
+          enum:
+          - episodic
+          - serial
+        thumbnail_url:
+          type: string
+          nullable: true
+        cover_art_url:
+          type: string
+          nullable: true
+        categories:
+          type: array
+          items:
+            type: string
+        directories:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              url:
+                type: string
+              config:
+                type: object
+        migrated_to_url:
+          type: string
+          nullable: true
+        migrated:
+          type: boolean
+        public:
+          type: boolean
+        ready:
+          type: boolean
+        distribution_ready:
+          type: boolean
+        url:
+          type: string
+          description: Public URL for the podcast
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: ISO 8601 date-time, read only
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: ISO 8601 date-time, read only
 servers:
 - url: https://api.kajabi.com
   description: Production
