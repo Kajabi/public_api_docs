@@ -1,9 +1,9 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "maple",
+  "theme": "almond",
   "name": "Kajabi",
   "colors": {
-    "primary": "#597D72",
+    "primary": "#0a0a0a",
     "light": "#fdfdfc",
     "dark": "#0a0a0a"
   },
@@ -22,7 +22,7 @@
     "default": "system"
   },
   "background": {
-    "decoration": "grid",
+    "decoration": "windows",
     "color": {
       "light": "#fdfdfc",
       "dark": "#0a0a0a"
