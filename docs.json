@@ -1,34 +1,36 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "almond",
+  "theme": "mint",
   "name": "Kajabi",
   "colors": {
-    "primary": "#0a0a0a",
-    "light": "#fdfdfc",
-    "dark": "#0a0a0a"
+    "primary": "#ff757a",
+    "light": "#fe7279",
+    "dark": "#ff757a"
   },
   "fonts": {
-    "family": "Inter",
+    "body": {
+      "family": "Faire Sprig",
+      "source": "https://cdn.prod.website-files.com/66aebc00ad11d5f27673a187/66aebc00ad11d5f27673a25f_FAIRE-Sprig-Regular.woff2",
+      "format": "woff2"
+    },
     "heading": {
+      "family": "Greet",
       "source": "https://cdn.prod.website-files.com/66aebc00ad11d5f27673a187/66aebc00ad11d5f27673a1f0_Greet%20VF.woff2",
       "format": "woff2"
     },
-    "body": {
-      "source": "https://cdn.prod.website-files.com/66aebc00ad11d5f27673a187/66aebc00ad11d5f27673a25f_FAIRE-Sprig-Regular.woff2",
-      "format": "woff2"
-    }
+    "family": "Inter"
   },
   "appearance": {
-    "default": "system"
+    "default": "light"
   },
   "background": {
-    "decoration": "windows",
+    "decoration": "gradient",
     "color": {
       "light": "#fdfdfc",
       "dark": "#0a0a0a"
     }
   },
-  "favicon": "/images/1.0-Kajabi-Icon-Light-512h.png",
+  "favicon": "/favicon.png",
   "navigation": {
     "tabs": [
       {
@@ -57,12 +59,20 @@
     }
   },
   "logo": {
-    "light": "/images/1.0-Kajabi-Lockup-Dark.svg",
-    "dark": "/images/1.0-Kajabi-Lockup-Light.svg",
-    "href": "https://developers.kajabi.com"
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg",
+    "href": "https://kajabi.com/"
   },
   "navbar": {
     "links": [
+      {
+        "label": "Login",
+        "href": "https://app.kajabi.com/login"
+      },
+      {
+        "label": "Leave Feedback",
+        "href": "https://kajabi.typeform.com/to/CO8xXiGz"
+      },
       {
         "label": "Feedback",
         "href": "https://feedback.kajabi.com/"
@@ -80,18 +90,19 @@
   },
   "contextual": {
     "options": [
-     "copy",
-     "view",
-     "chatgpt",
-     "claude",
-     "perplexity",
-     "mcp",
-     "cursor",
-     "vscode"
-   ]
+      "copy",
+      "view",
+      "chatgpt",
+      "claude",
+      "perplexity",
+      "mcp",
+      "cursor",
+      "vscode"
+    ]
   },
   "footer": {
     "socials": {
+      "facebook": "https://www.facebook.com/kajabi",
       "x": "https://www.x.com/kajabi",
       "instagram": "https://www.instagram.com/kajabi",
       "linkedin": "https://www.linkedin.com/company/kajabi/",
@@ -165,6 +176,5 @@
   },
   "metadata": {
     "timestamp": false
-  },
-  "description": "test"
+  }
 }
