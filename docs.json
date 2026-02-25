@@ -62,16 +62,7 @@
     "href": "https://developers.kajabi.com"
   },
   "navbar": {
-    "links": [
-      {
-        "label": "Feedback",
-        "href": "https://feedback.kajabi.com/"
-      },
-      {
-        "label": "Help",
-        "href": "https://help.kajabi.com/en/"
-      }
-    ]
+
   },
   "contextual": {
     "options": [
