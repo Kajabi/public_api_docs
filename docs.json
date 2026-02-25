@@ -63,31 +63,6 @@
     "dark": "/logo/dark.svg",
     "href": "https://kajabi.com/"
   },
-  "navbar": {
-    "links": [
-      {
-        "label": "Login",
-        "href": "https://app.kajabi.com/login"
-      },
-      {
-        "label": "Leave Feedback",
-        "href": "https://kajabi.typeform.com/to/CO8xXiGz"
-      },
-      {
-        "label": "Feedback",
-        "href": "https://feedback.kajabi.com/"
-      },
-      {
-        "label": "Help",
-        "href": "https://help.kajabi.com/en/"
-      }
-    ],
-    "primary": {
-      "type": "button",
-      "label": "Get Started for Free",
-      "href": "https://kajabi.com/?gad_source=1#"
-    }
-  },
   "contextual": {
     "options": [
       "copy",
