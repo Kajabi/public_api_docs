@@ -62,21 +62,7 @@
     "href": "https://developers.kajabi.com"
   },
   "navbar": {
-    "links": [
-      {
-        "label": "Feedback",
-        "href": "https://feedback.kajabi.com/"
-      },
-      {
-        "label": "Help",
-        "href": "https://help.kajabi.com/en/"
-      }
-    ],
-    "primary": {
-      "type": "button",
-      "label": "Get Started for Free",
-      "href": "https://kajabi.com/?gad_source=1#"
-    }
+
   },
   "contextual": {
     "options": [
