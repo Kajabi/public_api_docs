@@ -80,7 +80,228 @@
         ]
       },
       {
-        "tab": "Documentation"
+        "tab": "Documentation",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "atlas/get-started/foundations/foundations-start-here",
+              "atlas/get-started/foundations/step-1-validate-your-idea",
+              "atlas/get-started/foundations/step-2-customize-your-global-branding-settings",
+              "atlas/get-started/foundations/step-3-add-your-instructor-details",
+              "atlas/get-started/foundations/step-4-build-a-waitlist",
+              "atlas/get-started/foundations/step-5-connect-payment-integrations",
+              "atlas/get-started/foundations/step-6-create-a-product",
+              "atlas/get-started/foundations/step-7-price-your-product",
+              "atlas/get-started/foundations/step-8-design-your-website",
+              "atlas/get-started/foundations/step-9-test-the-journey"
+            ]
+          },
+          {
+            "group": "Cofounder",
+            "pages": [
+              "atlas/cofounder/cofounder-overview",
+              "atlas/cofounder/cofounder-faqs-and-limitations",
+              "atlas/cofounder/use-cofounder-before-signing-up-for-kajabi"
+            ]
+          },
+          {
+            "group": "Account Settings",
+            "pages": [
+              "atlas/account-settings/my-kajabi/dashboard-explained",
+              "atlas/account-settings/my-kajabi/sites-explained",
+              "atlas/account-settings/my-kajabi/change-your-account-details",
+              "atlas/account-settings/my-kajabi/change-your-site-language",
+              "atlas/account-settings/my-kajabi/how-to-update-your-password",
+              "atlas/account-settings/my-kajabi/protect-your-account-with-two-factor-authentication",
+              "atlas/account-settings/my-kajabi/log-in-with-google",
+              "atlas/account-settings/billing/managing-your-kajabi-account",
+              "atlas/account-settings/billing/how-to-manage-your-subscription",
+              "atlas/account-settings/billing/kajabi-trial-information",
+              "atlas/account-settings/users/account-users"
+            ]
+          },
+          {
+            "group": "Products",
+            "pages": [
+              "atlas/products/products-overview/kajabi-products-overview",
+              "atlas/products/choosing-the-right-product",
+              "atlas/products/ai-credits"
+            ]
+          },
+          {
+            "group": "Courses",
+            "pages": [
+              "atlas/products/courses/courses-overview",
+              "atlas/products/courses/course-templates",
+              "atlas/products/courses/how-to-create-a-course-paywall",
+              "atlas/products/courses/create-a-lesson",
+              "atlas/products/courses/course-modules",
+              "atlas/products/courses/uploading-videos-to-your-course-product-lessons",
+              "atlas/products/courses/how-to-upload-media-to-your-course-lesson",
+              "atlas/products/courses/course-quizzes",
+              "atlas/products/courses/course-downloads",
+              "atlas/products/courses/course-completion-certificates",
+              "atlas/products/courses/schedule-and-drip-content-in-courses"
+            ]
+          },
+          {
+            "group": "Community",
+            "pages": [
+              "atlas/products/community/community-overview",
+              "atlas/products/community/getting-started/how-do-my-members-experience-the-community",
+              "atlas/products/community/getting-started/customize-your-community-settings",
+              "atlas/products/community/getting-started/community-access-groups",
+              "atlas/products/community/features/creating-a-community-channel",
+              "atlas/products/community/features/how-to-create-a-community-announcement",
+              "atlas/products/community/features/create-a-community-challenge",
+              "atlas/products/community/features/create-a-community-meetup",
+              "atlas/products/community/features/host-live-rooms-and-events-in-your-community"
+            ]
+          },
+          {
+            "group": "Coaching",
+            "pages": [
+              "atlas/products/coaching/coaching-product-overview",
+              "atlas/products/coaching/how-to-create-a-coaching-product",
+              "atlas/products/coaching/kajabi-scheduler-overview",
+              "atlas/products/coaching/how-to-connect-the-kajabi-scheduler-to-your-coaching-product",
+              "atlas/products/coaching/how-to-create-a-live-video-session",
+              "atlas/products/coaching/group-coaching"
+            ]
+          },
+          {
+            "group": "Newsletters",
+            "pages": [
+              "atlas/products/newsletters/newsletters-overview",
+              "atlas/products/newsletters/customizing-your-newsletter",
+              "atlas/products/newsletters/how-to-create-exclusive-access-to-your-newsletter",
+              "atlas/products/newsletters/newsletter-analytics"
+            ]
+          },
+          {
+            "group": "Podcasts",
+            "pages": [
+              "atlas/products/podcasts/how-to-create-and-publish-podcast-products-with-kajabi",
+              "atlas/products/podcasts/how-to-create-a-private-podcast",
+              "atlas/products/podcasts/importing-an-existing-podcast-onto-kajabi"
+            ]
+          },
+          {
+            "group": "Website",
+            "pages": [
+              "atlas/website/pages/building-a-website-with-kajabi",
+              "atlas/website/pages/pages-overview",
+              "atlas/website/pages/website-templates-overview",
+              "atlas/website/pages/customizing-your-website-pages-with-the-website-builder",
+              "atlas/website/pages/how-to-add-pages-to-your-website",
+              "atlas/website/pages/customizing-your-header",
+              "atlas/website/pages/customizing-your-footer",
+              "atlas/website/domains/connect-a-custom-domain",
+              "atlas/website/navigation/how-to-build-your-navigation-menus",
+              "atlas/website/blog/blog-overview"
+            ]
+          },
+          {
+            "group": "Marketing",
+            "pages": [
+              "atlas/marketing/building-your-email-list",
+              "atlas/marketing/email-campaigns/email-campaigns-overview",
+              "atlas/marketing/email-campaigns/how-to-create-an-email-broadcast",
+              "atlas/marketing/email-campaigns/how-to-create-an-email-sequence",
+              "atlas/marketing/forms/how-to-create-and-use-a-form-for-your-site-funnels-and-external-pages",
+              "atlas/marketing/funnels/funnels-in-kajabi",
+              "atlas/marketing/funnels/how-to-generate-a-funnel",
+              "atlas/marketing/automations/automations-overview",
+              "atlas/marketing/events/event-overview"
+            ]
+          },
+          {
+            "group": "Sales",
+            "pages": [
+              "atlas/sales/offers/offers-overview",
+              "atlas/sales/offers/how-to-create-an-offer",
+              "atlas/sales/offers/how-to-create-a-one-time-payment-offer",
+              "atlas/sales/offers/how-to-create-a-subscription-offer",
+              "atlas/sales/offers/how-to-create-a-payment-plan-offer",
+              "atlas/sales/checkout/enhanced-checkout-overview",
+              "atlas/sales/checkout/how-to-customize-your-checkout-page",
+              "atlas/sales/coupons/how-to-create-a-coupon",
+              "atlas/sales/affiliates/affiliate-overview"
+            ]
+          },
+          {
+            "group": "Kajabi Payments",
+            "pages": [
+              "atlas/sales/kajabi-payments/kajabi-payments-overview",
+              "atlas/sales/kajabi-payments/getting-started-with-kajabi-payments-united-states",
+              "atlas/sales/kajabi-payments/getting-started-with-kajabi-payments-canada",
+              "atlas/sales/kajabi-payments/getting-started-with-kajabi-payments-united-kingdom",
+              "atlas/sales/kajabi-payments/getting-started-with-kajabi-payments-europe",
+              "atlas/sales/kajabi-payments/getting-started-with-kajabi-payments-australia",
+              "atlas/sales/kajabi-payments/kajabi-payments-fees-united-states",
+              "atlas/sales/kajabi-payments/how-to-view-kajabi-payments-payouts-and-payout-details"
+            ]
+          },
+          {
+            "group": "Contacts",
+            "pages": [
+              "atlas/contacts/manage-your-contacts/contacts-tab-overview",
+              "atlas/contacts/manage-your-contacts/how-to-manage-your-contacts-profiles",
+              "atlas/contacts/manage-your-contacts/how-to-import-contacts-into-kajabi",
+              "atlas/contacts/manage-your-contacts/how-to-export-your-contacts",
+              "atlas/contacts/manage-your-contacts/segment-your-contacts",
+              "atlas/contacts/manage-your-contacts/tags-overview",
+              "atlas/contacts/assessments/how-to-create-and-customize-assessments"
+            ]
+          },
+          {
+            "group": "Analytics",
+            "pages": [
+              "atlas/analytics/analytics-overview",
+              "atlas/analytics/insights-overview",
+              "atlas/analytics/analytics-reports",
+              "atlas/analytics/revenue-reports/report-gross-revenue",
+              "atlas/analytics/revenue-reports/report-net-revenue",
+              "atlas/analytics/customer-reports/report-new-contacts-over-time",
+              "atlas/analytics/content-reports/report-product-progress"
+            ]
+          },
+          {
+            "group": "API Integrations",
+            "pages": [
+              "atlas/api-integrations/choosing-an-integration-method",
+              "atlas/api-integrations/payment-integrations/how-to-connect-stripe-to-kajabi",
+              "atlas/api-integrations/payment-integrations/how-to-connect-paypal-to-kajabi",
+              "atlas/api-integrations/email-integrations/how-to-use-mailchimp-with-kajabi",
+              "atlas/api-integrations/analytics-integrations/how-to-connect-google-analytics-with-kajabi",
+              "atlas/api-integrations/zapier/how-to-use-zapier-with-kajabi",
+              "atlas/api-integrations/webhooks/webhooks-explained",
+              "atlas/api-integrations/public-api/using-kajabi-s-public-api"
+            ]
+          },
+          {
+            "group": "Mobile Apps",
+            "pages": [
+              "atlas/mobile-apps/which-kajabi-app-is-right-for-you",
+              "atlas/mobile-apps/kajabi-app/getting-started-with-kajabi-mobile-app",
+              "atlas/mobile-apps/kajabi-creator-app/kajabi-creator-mobile-app",
+              "atlas/mobile-apps/branded-app/branded-app-overview",
+              "atlas/mobile-apps/branded-app/setup/how-do-i-get-started-creating-my-own-branded-app"
+            ]
+          },
+          {
+            "group": "Resources",
+            "pages": [
+              "atlas/resources/general/kajabi-glossary",
+              "atlas/resources/general/kajabi-hero-community-khc",
+              "atlas/resources/general/how-to-access-your-kajabi-university",
+              "atlas/resources/support/how-to-contact-kajabi-support",
+              "atlas/resources/kajabi-partner-program/partner-program-overview",
+              "atlas/resources/business-guides/get-started-with-seo"
+            ]
+          }
+        ]
       }
     ]
   },
