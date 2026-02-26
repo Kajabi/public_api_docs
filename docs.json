@@ -8,13 +8,13 @@
     "dark": "#D6A151"
   },
   "fonts": {
-    "family": "Inter",
+    "family": "Haffer",
     "heading": {
-      "source": "https://cdn.prod.website-files.com/66aebc00ad11d5f27673a187/66aebc00ad11d5f27673a1f0_Greet%20VF.woff2",
+      "source": "https://cdn.prod.website-files.com/693317e747432cd054b3bdc6/693867054fefd9a85625bf80_Haffer-Bold.woff2",
       "format": "woff2"
     },
     "body": {
-      "source": "https://cdn.prod.website-files.com/66aebc00ad11d5f27673a187/66aebc00ad11d5f27673a25f_FAIRE-Sprig-Regular.woff2",
+      "source": "https://cdn.prod.website-files.com/693317e747432cd054b3bdc6/693867054eeda401fac8dda9_Haffer-Regular.woff2",
       "format": "woff2"
     }
   },
