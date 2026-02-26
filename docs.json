@@ -1,11 +1,11 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "almond",
+  "theme": "maple",
   "name": "Kajabi",
   "colors": {
-    "primary": "#0a0a0a",
-    "light": "#fdfdfc",
-    "dark": "#0a0a0a"
+    "primary": "#D6A151",
+    "light": "#D6A151",
+    "dark": "#D6A151"
   },
   "fonts": {
     "family": "Inter",
@@ -22,7 +22,7 @@
     "default": "system"
   },
   "background": {
-    "decoration": "windows",
+    "decoration": "grid",
     "color": {
       "light": "#fdfdfc",
       "dark": "#0a0a0a"
@@ -30,31 +30,59 @@
   },
   "favicon": "/images/1.0-Kajabi-Icon-Light-512h.png",
   "navigation": {
+    "global": {
+      "anchors": [
+        {
+          "anchor": "Videos & Webinars",
+          "icon": "presentation-screen",
+          "href": "https://www.kajabi.com/learn"
+        },
+        {
+          "anchor": "Updates",
+          "icon": "newspaper",
+          "href": "https://kajabi.com/updates"
+        },
+        {
+          "anchor": "Community",
+          "icon": "users",
+          "href": "https://university.mykajabi.com/products/communities/v2/khc/home"
+        },
+        {
+          "anchor": "Feedback",
+          "icon": "megaphone",
+          "href": "https://feedback.kajabi.com"
+        },
+        {
+          "anchor": "Status",
+          "icon": "monitor-waveform",
+          "href": "https://status.kajabi.com/"
+        }
+      ]
+    },
     "tabs": [
       {
-        "tab": "API Documentation",
+        "tab": "API Reference",
         "openapi": "openapi.yaml",
         "groups": [
           {
             "group": "Getting Started",
-            "pages": ["api-reference/introduction", "api-reference/authentication"]
+            "pages": [
+              "api-reference/introduction",
+              "api-reference/authentication"
+            ]
           }
         ]
       },
       {
-        "tab": "Changelog",
-        "pages": ["changelog"]
+        "tab": "API Changelog",
+        "pages": [
+          "changelog"
+        ]
+      },
+      {
+        "tab": "Documentation"
       }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "Status",
-          "href": "https://status.kajabi.com/",
-          "icon": "signal"
-        }
-      ]
-    }
+    ]
   },
   "logo": {
     "light": "/images/1.0-Kajabi-Lockup-Dark.svg",
@@ -110,7 +138,7 @@
             "href": "https://university.mykajabi.com/"
           },
           {
-            "label": "Hire a Partner",
+            "label": "Hire a Kajabi Expert",
             "href": "https://contra.com/kajabi"
           },
           {
@@ -148,5 +176,13 @@
   },
   "metadata": {
     "timestamp": false
+  },
+  "integrations": {
+    "intercom": {
+      "appId": "gxun6ex4"
+    }
+  },
+  "navbar": {
+    "links": []
   }
 }
