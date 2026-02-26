@@ -78,6 +78,12 @@
         "pages": [
           "changelog"
         ]
+      },
+      {
+        "tab": "Documentation",
+        "pages": [
+          "using-kajabis-public-api"
+        ]
       }
     ]
   },
