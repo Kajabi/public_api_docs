@@ -73,7 +73,15 @@
       },
       {
         "tab": "Documentation",
-        "groups": [
+        "pages": [
+          "documentation/introduction",
+          {
+            "group": "Products",
+            "icon": "cube",
+            "pages": [
+              "documentation/products/Create-a-course-paywall"
+            ]
+          },
           {
             "group": "API & Integrations",
             "icon": "plug",
@@ -86,12 +94,6 @@
             "icon": "screwdriver-wrench",
             "pages": [
               "documentation/resources/contact-kajabi-support"
-            ]
-          },
-          {
-            "group": "Products",
-            "pages": [
-              "documentation/products/Create-a-course-paywall"
             ]
           }
         ]
