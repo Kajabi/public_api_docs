@@ -7,6 +7,17 @@
     "light": "#D6A151",
     "dark": "#D6A151"
   },
+  "fonts": {
+    "family": "Geist",
+    "heading": {
+      "source": "https://cdn.prod.website-files.com/693317e747432cd054b3bdc6/693867054fefd9a85625bf80_Haffer-Bold.woff2",
+      "format": "woff2"
+    },
+    "body": {
+      "source": "https://cdn.prod.website-files.com/693317e747432cd054b3bdc6/693867054eeda401fac8dda9_Haffer-Regular.woff2",
+      "format": "woff2"
+    }
+  },
   "appearance": {
     "default": "system"
   },
@@ -71,7 +82,8 @@
       {
         "tab": "Documentation",
         "pages": [
-          "documentation/using-kajabis-public-api"
+          "documentation/using-kajabis-public-api",
+          "documentation/contact-kajabi-support"
         ]
       }
     ]
