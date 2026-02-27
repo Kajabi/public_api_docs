@@ -1,5 +1,14 @@
 #page-context-menu, #page-context-menu.button { display: none !important; }
 
 .dark #topbar-cta-button .bg-primary-dark {
-  background-color: rgba(10,10,10,0.8) !important;
+  background-color: #D6A151 !important;
 }
+
+.dark #topbar-cta-button span.z-10 {
+  color: #0a0a0a !important;
+}
+
+.dark #topbar-cta-button svg {
+  color: rgba(10,10,10,0.9) !important;
+}
+
