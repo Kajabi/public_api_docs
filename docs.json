@@ -81,18 +81,6 @@
     "dark": "/images/1.0-Kajabi-Lockup-Light.svg",
     "href": "https://developers.kajabi.com"
   },
-  "contextual": {
-    "options": [
-     "copy",
-     "view",
-     "chatgpt",
-     "claude",
-     "perplexity",
-     "mcp",
-     "cursor",
-     "vscode"
-   ]
-  },
   "footer": {
     "socials": {
       "x": "https://www.x.com/kajabi",
