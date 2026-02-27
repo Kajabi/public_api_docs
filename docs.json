@@ -188,14 +188,13 @@
     "links": [
       {
         "label": "Login",
-        "type": "secondary",
         "href": "https://id.kajabi.com/u/login"
-      },
-      {
+      }
+       ],
+      "primary" {
         "label": "Start Free Trial",
-        "type": "primary",
+        "type": "button",
         "href": "https://app.kajabi.com/signup/v3_kajabi_basic_monthly?signup_source=kajabi_basic_monthly"
       }
-    ]
   }
 }
