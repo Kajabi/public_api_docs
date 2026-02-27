@@ -87,6 +87,12 @@
             "pages": [
               "documentation/contact-kajabi-support"
             ]
+          },
+          {
+            "group": "Products",
+            "pages": [
+              "documentation/products/Create-a-course-paywall"
+            ]
           }
         ]
       }
