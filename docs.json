@@ -8,15 +8,7 @@
     "dark": "#D6A151"
   },
   "fonts": {
-    "family": "Geist",
-    "heading": {
-      "source": "https://cdn.prod.website-files.com/693317e747432cd054b3bdc6/693867054fefd9a85625bf80_Haffer-Bold.woff2",
-      "format": "woff2"
-    },
-    "body": {
-      "source": "https://cdn.prod.website-files.com/693317e747432cd054b3bdc6/693867054eeda401fac8dda9_Haffer-Regular.woff2",
-      "format": "woff2"
-    }
+    "family": "Geist"
   },
   "appearance": {
     "default": "system"
@@ -92,18 +84,6 @@
     "light": "/images/1.0-Kajabi-Lockup-Dark.svg",
     "dark": "/images/1.0-Kajabi-Lockup-Light.svg",
     "href": "https://developers.kajabi.com"
-  },
-  "contextual": {
-    "options": [
-     "copy",
-     "view",
-     "chatgpt",
-     "claude",
-     "perplexity",
-     "mcp",
-     "cursor",
-     "vscode"
-   ]
   },
   "footer": {
     "socials": {
