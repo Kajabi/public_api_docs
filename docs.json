@@ -188,6 +188,7 @@
     "links": [
       {
         "label": "Login",
+        "type": "button",
         "href": "https://id.kajabi.com/u/login"
       }
        ],
