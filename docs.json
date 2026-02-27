@@ -7,6 +7,9 @@
     "light": "#D6A151",
     "dark": "#0a0a0a"
   },
+  "custom": {
+    "stylesheet": "/style.css"
+  },
   "fonts": {
     "family": "Geist"
   },
@@ -199,7 +202,5 @@
         "type": "button",
         "href": "https://app.kajabi.com/signup/v3_kajabi_basic_monthly?signup_source=kajabi_basic_monthly"
       }
-  },
-  "custom": {
-    "stylesheet": "/style.css"
+  }
 }
