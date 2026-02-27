@@ -78,14 +78,14 @@
             "group": "API & Integrations",
             "icon": "plug",
             "pages": [
-              "documentation/using-kajabis-public-api"
+              "documentation/api-integrations/using-kajabis-public-api"
             ]
           },
           {
             "group": "Resources",
             "icon": "screwdriver-wrench",
             "pages": [
-              "documentation/contact-kajabi-support"
+              "documentation/resources/contact-kajabi-support"
             ]
           },
           {
