@@ -27,26 +27,46 @@
         {
           "anchor": "Videos & Webinars",
           "icon": "presentation-screen",
+          "color": {
+            "light": "#D6A151",
+            "dark": "#D6A151"
+          },
           "href": "https://www.kajabi.com/learn"
         },
         {
           "anchor": "Updates",
           "icon": "newspaper",
+          "color": {
+            "light": "#D6A151",
+            "dark": "#D6A151"
+          },
           "href": "https://kajabi.com/updates"
         },
         {
           "anchor": "Community",
           "icon": "users",
+          "color": {
+            "light": "#D6A151",
+            "dark": "#D6A151"
+          },
           "href": "https://university.mykajabi.com/products/communities/v2/khc/home"
         },
         {
           "anchor": "Feedback",
           "icon": "megaphone",
+          "color": {
+            "light": "#D6A151",
+            "dark": "#D6A151"
+          },
           "href": "https://feedback.kajabi.com"
         },
         {
           "anchor": "Status",
           "icon": "monitor-waveform",
+          "color": {
+            "light": "#D6A151",
+            "dark": "#D6A151"
+          },
           "href": "https://status.kajabi.com/"
         }
       ]
