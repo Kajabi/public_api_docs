@@ -73,9 +73,21 @@
       },
       {
         "tab": "Documentation",
-        "pages": [
-          "documentation/using-kajabis-public-api",
-          "documentation/contact-kajabi-support"
+        "groups": [
+          {
+            "group": "API & Integrations",
+            "icon": "plug",
+            "pages": [
+              "documentation/using-kajabis-public-api"
+            ]
+          },
+          {
+            "group": "Resources",
+            "icon": "screwdriver-wrench",
+            "pages": [
+              "documentation/contact-kajabi-support"
+            ]
+          }
         ]
       }
     ]
