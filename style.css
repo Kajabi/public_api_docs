@@ -1,3 +1,5 @@
 #page-context-menu, #page-context-menu.button { display: none !important; }
 
-.dark .bg-primary-dark { color:#0a0a0a !important; }
+.dark .bg-primary-dark { background-color: #D6A151 !important; }
+
+.dark .bg-primary-dark span { color:#0a0a0a !important; }
