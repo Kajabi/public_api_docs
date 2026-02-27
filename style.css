@@ -1,1 +1,1 @@
-#page-context-menu { display: none; }
+#page-context-menu { display: none !important; }
