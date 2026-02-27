@@ -2,4 +2,4 @@
 
 .dark .bg-primary-dark { background-color: #D6A151 !important; }
 
-.dark .bg-primary-dark span { color:#0a0a0a !important; }
+.dark .bg-primary-dark .text-white { color:#0a0a0a !important; }
