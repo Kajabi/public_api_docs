@@ -199,5 +199,7 @@
         "type": "button",
         "href": "https://app.kajabi.com/signup/v3_kajabi_basic_monthly?signup_source=kajabi_basic_monthly"
       }
-  }
+  },
+  "custom": {
+    "stylesheet": "/style.css"
 }
