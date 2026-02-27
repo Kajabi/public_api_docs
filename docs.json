@@ -1,9 +1,9 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "maple",
+  "theme": "mint",
   "name": "Kajabi",
   "colors": {
-    "primary": "#D6A151",
+    "primary": "#0a0a0a",
     "light": "#D6A151",
     "dark": "#D6A151"
   },
@@ -185,6 +185,17 @@
     }
   },
   "navbar": {
-    "links": []
+    "links": [
+      {
+        "label": "Login",
+        "type": "secondary",
+        "href": "https://id.kajabi.com/u/login"
+      },
+      {
+        "label": "Start Free Trial",
+        "type": "primary",
+        "href": "https://app.kajabi.com/signup/v3_kajabi_basic_monthly?signup_source=kajabi_basic_monthly"
+      }
+    ]
   }
 }
