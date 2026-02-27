@@ -1,1 +1,3 @@
 #page-context-menu, #page-context-menu.button { display: none !important; }
+
+.dark .bg-primary-dark { color: #0a0a0a !important; }
