@@ -93,6 +93,7 @@
       },
       {
         "tab": "Documentation",
+        "hidden": true,
         "pages": [
           "documentation/introduction",
           {
