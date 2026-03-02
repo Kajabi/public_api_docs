@@ -182,11 +182,6 @@
   "metadata": {
     "timestamp": false
   },
-  "integrations": {
-    "intercom": {
-      "appId": "gxun6ex4"
-    }
-  },
   "navbar": {
     "links": [
       {
