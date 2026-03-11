@@ -1,7 +1,7 @@
 #page-context-menu, #page-context-menu.button { display: none !important; }
 
 .dark #topbar-cta-button .bg-primary-dark {
-  background-color: #D6A151 !important;
+  background-color: #fcfcfc !important;
 }
 
 .dark #topbar-cta-button span.z-10 {
