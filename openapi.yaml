@@ -5,7 +5,7 @@ x-mint:
     enabled: true
 info:
   title: Kajabi API V1
-  version: 1.0.1
+  version: 1.1.0
   description: |
     ## Public API
     * Server URL `https://api.kajabi.com`
@@ -1327,6 +1327,31 @@ paths:
         description: Filter contacts without the specified offer ID
         schema:
           type: string
+      - name: filter[has_product_id]
+        in: query
+        required: false
+        description: Filter contacts who own a specific product ID
+        schema:
+          type: string
+      - name: filter[has_active_product_id]
+        in: query
+        required: false
+        description: Filter contacts with an active membership to a specific product
+          ID
+        schema:
+          type: string
+      - name: filter[has_no_product_id]
+        in: query
+        required: false
+        description: Filter contacts who do not own a specific product ID
+        schema:
+          type: string
+      - name: filter[previously_owned_product_id]
+        in: query
+        required: false
+        description: Filter contacts who previously owned a specific product ID
+        schema:
+          type: string
       - name: filter[used_coupon_code]
         in: query
         required: false
@@ -1592,12 +1617,6 @@ paths:
         in: query
         required: false
         description: Filter contacts unsubscribed from a specific newsletter ID
-        schema:
-          type: string
-      - name: filter[is_suppressed]
-        in: query
-        required: false
-        description: Filter suppressed contacts
         schema:
           type: string
       - name: filter[mobile_phone_number_contains]
@@ -2004,6 +2023,12 @@ paths:
             application/vnd.api+json:
               schema:
                 "$ref": "#/components/schemas/errors_forbidden"
+        '422':
+          description: Unprocessable entity, contact has active Kajabi Payments subscriptions
+          content:
+            application/vnd.api+json:
+              schema:
+                "$ref": "#/components/schemas/errors_unprocessable"
   "/v1/contacts/{contact_id}/relationships/offers":
     get:
       summary: List contact's offers
@@ -3740,6 +3765,31 @@ paths:
         description: Filter customers without the specified offer ID
         schema:
           type: string
+      - name: filter[has_product_id]
+        in: query
+        required: false
+        description: Filter customers who own a specific product ID
+        schema:
+          type: string
+      - name: filter[has_active_product_id]
+        in: query
+        required: false
+        description: Filter customers with an active membership to a specific product
+          ID
+        schema:
+          type: string
+      - name: filter[has_no_product_id]
+        in: query
+        required: false
+        description: Filter customers who do not own a specific product ID
+        schema:
+          type: string
+      - name: filter[previously_owned_product_id]
+        in: query
+        required: false
+        description: Filter customers who previously owned a specific product ID
+        schema:
+          type: string
       - name: filter[used_coupon_code]
         in: query
         required: false
@@ -4008,12 +4058,6 @@ paths:
         description: Filter customers unsubscribed from a specific newsletter ID
         schema:
           type: string
-      - name: filter[is_suppressed]
-        in: query
-        required: false
-        description: Filter suppressed customers
-        schema:
-          type: string
       - name: filter[mobile_phone_number_contains]
         in: query
         required: false
@@ -4036,7 +4080,7 @@ paths:
           type: string
       responses:
         '200':
-          description: Success, list search results
+          description: Success, filter by product ownership
           content:
             application/vnd.api+json:
               schema:
@@ -8653,6 +8697,12 @@ paths:
           }]
         }
         ```
+        ## Filter by Excluded Product Types
+        Use the `filter[exclude_product_types][]` parameter to exclude products by productizable_type (fully-qualified class name):
+        ### Exclude CohortCourse products
+        * `GET /v1/products?filter[exclude_product_types][]=Courses::CohortCourse`
+
+        Response will exclude products with the specified productizable_type while keeping legacy evergreen courses visible.
         ## Using Multiple Parameters Together
         You can combine pagination, sorting, sparse fields and filtering in a single request:
         ### Get page 2 of products for site 123, sorted by title descending, including only title and publish_status fields
@@ -8746,6 +8796,15 @@ paths:
         description: Filter by status equals, for example ?filter[status_eq]=ready
         schema:
           type: string
+      - name: filter[exclude_product_types][]
+        in: query
+        schema:
+          type: array
+          items:
+            type: string
+        required: false
+        description: Exclude products by productizable_type (fully-qualified, e.g.
+          Courses::CohortCourse). Repeatable.
       responses:
         '200':
           description: Success, list of products which the current user may access
@@ -9808,8 +9867,11 @@ paths:
           ```
           ## Include Relationships
           Use the `include` parameter to include related resources:
-          ### Include customer and offer relationships
-          * `GET /v1/transactions/123?include=customer,offer`
+
+          > **Deprecated:** the `offer` relationship is deprecated and will be removed in a future version. It is only populated for single-offer transactions and is `null` for bundled (multi-offer) transactions. Use the `purchases` relationship instead — it lists every offer purchase a transaction covers, for all transaction types.
+
+          ### Include customer and purchases relationships
+          * `GET /v1/transactions/123?include=customer,purchases`
 
           Response will include related resources
           ```json
@@ -9835,11 +9897,13 @@ paths:
                     "type": "customers"
                   }
                 },
-                "offer": {
-                  "data": {
-                    "id": "789",
-                    "type": "offers"
-                  }
+                "purchases": {
+                  "data": [
+                    {
+                      "id": "501",
+                      "type": "purchases"
+                    }
+                  ]
                 }
               }
             },
@@ -9869,23 +9933,23 @@ paths:
                 }
               },
               {
-                "id": "789",
-                "type": "offers",
+                "id": "501",
+                "type": "purchases",
                 "attributes": {
-                  "title": "Offer Title",
-                  "description": "Offer Description",
-                  "internal_title": "Internal Title",
-                  "price_in_cents": 9900,
-                  "payment_type": "payment_method",
-                  "token": "offer_token",
-                  "payment_method": "payment_method",
-                  "price_description": "Price Description",
-                  "checkout_url": "https://example.com/checkout",
-                  "recurring_offer": true,
-                  "subscription": true,
-                  "one_time": false,
-                  "single": false,
-                  "free": false
+                  "amount_in_cents": 100,
+                  "payment_type": "subscription",
+                  "currency": "USD",
+                  "quantity": 1,
+                  "created_at": "2025-03-14T19:17:38.000Z",
+                  "updated_at": "2025-03-14T19:17:38.000Z"
+                },
+                "relationships": {
+                  "offer": {
+                    "data": {
+                      "id": "789",
+                      "type": "offers"
+                    }
+                  }
                 }
               }
             ]
@@ -9913,7 +9977,7 @@ paths:
                 "id": "456",
                 "type": "customers",
                 "attributes": {
-                  "name": "John Doe"
+                  "name": "John Doe",
                   "email": "john@example.com"
                 }
               }
@@ -9939,7 +10003,7 @@ paths:
       - name: include
         in: query
         required: false
-        description: Load the related resources, for example ?include=customer,offer
+        description: Load the related resources, for example ?include=customer,purchases
         schema:
           type: string
       responses:
@@ -12123,9 +12187,19 @@ components:
                         "$ref": "#/components/schemas/resource_identifier"
                   offer:
                     type: object
+                    deprecated: true
+                    description: 'DEPRECATED: use `purchases`. Populated only for
+                      single-offer transactions; null for bundled (multi-offer) transactions.'
                     properties:
                       data:
                         "$ref": "#/components/schemas/resource_identifier"
+                  purchases:
+                    type: object
+                    description: Offer purchases this transaction covers (one entry
+                      for single-offer transactions, several for bundled).
+                    properties:
+                      data:
+                        "$ref": "#/components/schemas/resource_identifiers"
         links:
           type: object
           properties:
@@ -12155,9 +12229,19 @@ components:
                       "$ref": "#/components/schemas/resource_identifier"
                 offer:
                   type: object
+                  deprecated: true
+                  description: 'DEPRECATED: use `purchases`. Populated only for single-offer
+                    transactions; null for bundled (multi-offer) transactions.'
                   properties:
                     data:
                       "$ref": "#/components/schemas/resource_identifier"
+                purchases:
+                  type: object
+                  description: Offer purchases this transaction covers (one entry
+                    for single-offer transactions, several for bundled).
+                  properties:
+                    data:
+                      "$ref": "#/components/schemas/resource_identifiers"
         links:
           type: object
           properties:
