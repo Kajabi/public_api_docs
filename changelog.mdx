@@ -1,6 +1,21 @@
 ---
 title: "Changelog"
 ---
+<Update label="June 10, 2026" description="1.1.0">
+
+Added a `purchases` relationship to the transactions endpoint, listing the offer purchase(s) a transaction covers. A transaction covers multiple offer purchases when several offers are bundled into a single charge, which can occur when a checkout includes multiple order bumps, or for Cart or Invoice orders.
+
+Deprecated the singular `offer` relationship — it remains populated for single-offer transactions, but returns `null` for bundled transactions; use `purchases` instead.
+
+Added product-ownership filters to the contacts and customers endpoints: `filter[has_product_id]`, `filter[has_active_product_id]`, `filter[has_no_product_id]`, and `filter[previously_owned_product_id]`.
+
+Added `filter[exclude_product_types][]` to the products endpoint to exclude products by productizable type.
+
+Removed the `filter[is_suppressed]` contacts search filter.
+
+Deleting a contact that has active Kajabi Payments subscriptions or payment plans now returns a `422 Unprocessable Entity` error instead of deleting the contact.
+</Update>
+
 <Update label="December 18, 2025" description="1.0.1">
 
 Fixed documented path for hook-related endpoints v1.0.1
