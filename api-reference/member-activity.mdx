@@ -13,7 +13,7 @@ Five webhook events report what members do in your courses and site. `GET /v1/co
 Creating, listing, and deleting hooks requires the account owner's API key. Keys made with the "Create User API Key" button can't manage hooks.
 
 * Find the owner's key on the [Public API](https://app.kajabi.com/admin/settings/public_api) settings page, under **User API Keys**. It is named after the account owner and shows `Scope: owner`.
-* Only Owners and Co-owners can view or manage API keys.
+* Only Owners and Co-owners can create or manage API keys.
 * A custom key can call `GET /v1/course_progress` if it has the `view:course_progress` permission.
 
 See [Authentication](/api-reference/authentication) for exchanging the `client_id` and `client_secret` for an access token.
