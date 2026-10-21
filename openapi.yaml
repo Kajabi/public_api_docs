@@ -5,7 +5,7 @@ x-mint:
     enabled: true
 info:
   title: Kajabi API V1
-  version: 1.1.0
+  version: 1.2.0
   description: |
     ## Public API
     * Server URL `https://api.kajabi.com`
@@ -2561,6 +2561,139 @@ paths:
                     "$ref": "#/components/schemas/resource_identifier"
               required:
               - data
+  "/v1/course_progress":
+    get:
+      summary: List member progress for a course
+      tags:
+      - Course Progress
+      description: |
+        Returns one row per member with a progress record for this course, with overall completion and per-lesson detail.
+
+        * A progress record can exist with no completed lessons and no video progress (viewing the course can create one), so rows won't line up one-to-one with `course_started` webhooks.
+        * Deleted members are not returned.
+        * Only lessons marked complete count toward completion. A lesson that is partly watched but not marked complete does not.
+        * Only published lessons are included.
+        * `filter[updated_since]` matches member activity only. Publishing or unpublishing lessons changes `total_lessons` and `percent_complete` without changing `updated_at`.
+        * `filter[updated_since]` never returns rows that moved to another customer in a contact merge, rows deleted as merge duplicates, or deleted members. Run a periodic full pass (no `filter[updated_since]`) to reconcile.
+        * Incremental sync: start each `filter[updated_since]` window at the time your previous sync started, minus a few minutes, not at the newest `updated_at` you received. A row that changes after your walk has passed it gets a timestamp older than rows returned later in the same walk, so a window that starts at the newest `updated_at` skips it until it changes again. On a large course a full walk takes thousands of requests, so that gap is wide. The same margin covers rows whose insert commits after a higher `id` was already returned.
+        * Results are always ordered by `id`. The `sort` parameter is not supported.
+        * Pages are cursor based. Follow `links.next`; it is absent on the last page. `page[after]` is the `id` of the last row returned. There is no `meta.total`.
+        * `page[size]` defaults to 30 and is capped at 100.
+        * `page[number]` is not supported and returns 400.
+      security:
+      - Bearer: []
+      parameters:
+      - name: filter[product_id]
+        in: query
+        required: true
+        description: ID of the course. Courses on other accounts return 404. Other
+          product IDs, including cohort courses, access levels, coaching and communities,
+          return 404.
+        schema:
+          type: integer
+      - name: filter[customer_id]
+        in: query
+        required: false
+        description: Only return progress for this customer (member) ID.
+        schema:
+          type: integer
+      - name: filter[updated_since]
+        in: query
+        required: false
+        description: ISO 8601 timestamp. Only return rows updated at or after this
+          time, e.g. 2026-10-01T10:00:00-05:00.
+        schema:
+          type: string
+      - name: page[after]
+        in: query
+        required: false
+        description: Return rows after this `id`. Use the `id` of the last row from
+          the previous page, or follow `links.next`.
+        schema:
+          type: integer
+      - name: page[size]
+        in: query
+        required: false
+        description: Rows per page. Default 30, maximum 100.
+        schema:
+          type: integer
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                        type:
+                          type: string
+                        attributes:
+                          type: object
+                          properties:
+                            customer_id:
+                              type: integer
+                            completed_lessons:
+                              type: integer
+                            total_lessons:
+                              type: integer
+                            percent_complete:
+                              type: integer
+                            completed:
+                              type: boolean
+                            updated_at:
+                              type: string
+                            lessons:
+                              type: array
+                              items:
+                                type: object
+                                properties:
+                                  lesson_id:
+                                    type: integer
+                                  completed_at:
+                                    type: string
+                                    nullable: true
+                                  progress_percent:
+                                    type: integer
+                                    nullable: true
+                  links:
+                    type: object
+                    properties:
+                      self:
+                        type: string
+                      next:
+                        type: string
+        '400':
+          description: Bad Request - filter[product_id] is missing, a filter is malformed,
+            page[number] was sent, or page[after] is not an integer
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/errors_bad_request"
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/errors_unauthorized"
+        '403':
+          description: Forbidden - missing the view:course_progress scope
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/errors_forbidden"
+        '404':
+          description: Not Found - the course does not exist on this account
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/errors_not_found"
   "/v1/courses":
     get:
       summary: List courses
@@ -5426,10 +5559,15 @@ paths:
           enum:
           - purchase
           - form_submission
+          - assessment_completed
           - tag_added
           - tag_removed
           - payment_succeeded
           - order_created
+          - lesson_completed
+          - course_started
+          - course_completed
+          - member_signed_in
         description: Filter by event type, for example ?filter[event_eq]=purchase
       responses:
         '200':
@@ -5458,7 +5596,7 @@ paths:
         ## Request Body
         The request must include:
         * `data` - parent object which includes the children/nested attributes:
-        * `target_url` - The URL where webhook events will be sent
+        * `target_url` - The URL where webhook events will be sent. Must use `https://`
         * `event` - The type of event to subscribe to (see available events below), for example "tag_added"
         * `resource_id` (optional) - Specific resource ID to filter events for, for example the id of the Contact Tag. When the property is omitted, the webhook will be triggered for all events of the specified type, as a wildcard webhook.
 
@@ -5472,8 +5610,15 @@ paths:
         | `form_submission` | Someone submits a form | `view:form_submissions` |
         | `tag_added` | Tag is added to a contact | `view:contacts` |
         | `tag_removed` | Tag is removed from a contact | `view:contacts` |
+        | `lesson_completed` | A lesson is marked complete for a member | `view:course_progress` |
+        | `course_started` | A member completes their first lesson in a course | `view:course_progress` |
+        | `course_completed` | A member has completed every published lesson in a course | `view:course_progress` |
+        | `assessment_completed` | Someone submits an assessment | `view:assessments` |
+        | `member_signed_in` | A member signs in (see the sample for which sign-ins count) | `view:customers` |
 
         **Note**: You can only create webhooks for events you have permission to access based on your API key scopes. For example to use tags you need the `view:contacts` scope, which is included in the account owner api key scope.
+
+        **`resource_id` by event**: for `lesson_completed`, `course_started` and `course_completed` it is a course id. For `assessment_completed` it is an assessment id. `member_signed_in` has no resource, so a `resource_id` filters nothing and the hook fires for every member.
 
         ## Sample Payloads
         You can view sample webhook payloads for each event type:
@@ -5483,6 +5628,11 @@ paths:
         * `GET /v1/hooks/form_submission_sample`
         * `GET /v1/hooks/tag_added_sample`
         * `GET /v1/hooks/tag_removed_sample`
+        * `GET /v1/hooks/lesson_completed_sample`
+        * `GET /v1/hooks/course_started_sample`
+        * `GET /v1/hooks/course_completed_sample`
+        * `GET /v1/hooks/assessment_completed_sample`
+        * `GET /v1/hooks/member_signed_in_sample`
 
         Example request targeting a specific tag:
         ```json
@@ -5536,9 +5686,18 @@ paths:
           "payload": [],
         }
         ```
-        The `id` is the ID of the resource that triggered the event.
+        The `id` is a UUID for this delivery. Each hook gets its own `id` for each event. A retry of the same delivery keeps its `id`, but a rare duplicate can arrive with a new one.
         The `event` is the type of event that triggered the webhook.
         The `payload` is the actual payload of the event and the content will be similar to the sample payloads above.
+
+        ## Delivery
+        * Kajabi can occasionally send the same event twice, and the duplicate can arrive with a different `id`. Dedupe on the payload instead: the customer `id`, the lesson or course `id` when there is one, and the `meta` timestamp, or the `assessment_results` `id` for `assessment_completed`. Each member activity sample lists its exact fields.
+        * A 4xx response other than 429, a 5xx response, no response within 30 seconds, or a connection failure gets one attempt and is not retried.
+        * A 429 response is retried later.
+        * A delivery that fails on Kajabi's side is retried with the same `id`.
+        * A 410 response deletes the hook.
+        * Events are not ordered. Don't rely on one event arriving before another, even for the same member.
+        * Payloads are not signed.
       tags:
       - Webhooks
       security:
@@ -6812,6 +6971,756 @@ paths:
             application/vnd.api+json:
               schema:
                 "$ref": "#/components/schemas/errors_forbidden"
+  "/v1/hooks/lesson_completed_sample":
+    get:
+      summary: Lesson completed sample
+      description: |
+        Returns sample webhook payload for the `lesson_completed` event:
+        ```
+        [
+          {
+            "id": "0",
+            "type": "customers",
+            "attributes": {
+              "name": "John Doe",
+              "email": "john.doe@example.com",
+              "avatar": null,
+              "external_user_id": null,
+              "public_bio": null,
+              "public_location": null,
+              "public_website": null,
+              "socials": null,
+              "net_revenue": "0.0",
+              "sign_in_count": 0,
+              "last_request_at": null,
+              "bounced_at": null,
+              "created_at": "2025-07-31T16:51:04.010Z",
+              "updated_at": "2025-07-31T16:51:04.010Z",
+              "last_sign_in_at": null
+            },
+            "links": {
+              "contact": "https://www.kajabi.test/api/v1/contacts/0"
+            },
+            "relationships": {
+              "site": {
+                "data": {
+                  "id": "2",
+                  "type": "sites"
+                }
+              },
+              "contact": {
+                "data": {
+                  "id": "0",
+                  "type": "contacts"
+                }
+              },
+              "offers": {
+                "data": [],
+                "links": {
+                  "self": "https://www.kajabi.test/api/v1/customers/0/relationships/offers"
+                }
+              },
+              "products": {
+                "data": []
+              }
+            },
+            "meta": {
+              "completed_at": "2025-07-31T16:51:04.000Z"
+            }
+          },
+          {
+            "id": "0",
+            "type": "lessons",
+            "attributes": {
+              "title": "Sample Lesson",
+              "position": null,
+              "status": "ready",
+              "publishing_option": "draft"
+            },
+            "relationships": {
+              "module": {
+                "data": {
+                  "id": "0",
+                  "type": "modules"
+                }
+              }
+            }
+          },
+          {
+            "id": "0",
+            "type": "courses",
+            "attributes": {
+              "created_at": "2025-07-31T16:51:04.010Z",
+              "title": "Sample Course",
+              "description": null,
+              "thumbnail_url": null
+            },
+            "relationships": {
+              "site": {
+                "data": {
+                  "id": "2",
+                  "type": "sites"
+                }
+              },
+              "offers": {
+                "data": []
+              },
+              "modules": {
+                "data": []
+              },
+              "lessons": {
+                "data": []
+              }
+            }
+          }
+        ]
+        ```
+        ## Behavior
+        * Fires each time a lesson is marked complete for a member, including a lesson that was already complete. Marking a lesson incomplete sends nothing.
+        * Marking a live session complete in the admin marks its lesson complete for every member of the course, so expect a burst of events.
+        * For a cohort course, the `courses` resource is a cohort product. The public API does not support cohort courses, so `GET /v1/courses/{id}` returns 404 for it.
+        * Kajabi can occasionally send the same event twice, and a duplicate can arrive with a different `id`, so dedupe on the customer `id`, the lesson `id`, and `meta.completed_at`.
+
+        ## Actual Payloads
+        The actual payloads are sent to the `target_url` as a POST request with the following JSON body:
+        ```json
+        {
+          "id": "hash_id",
+          "event": "lesson_completed",
+          "payload": [],
+        }
+        ```
+        The `payload` array is the sample response above
+      tags:
+      - Webhooks
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: Success, returns sample webhook payload
+          content:
+            application/vnd.api+json:
+              schema:
+                type: array
+                items:
+                  anyOf:
+                  - type: object
+                    properties:
+                      id:
+                        type: string
+                      type:
+                        type: string
+                        enum:
+                        - customers
+                      attributes:
+                        "$ref": "#/components/schemas/customers_attributes"
+                      meta:
+                        type: object
+                        properties:
+                          completed_at:
+                            type: string
+                            format: date-time
+                  - type: object
+                    properties:
+                      id:
+                        type: string
+                      type:
+                        type: string
+                        enum:
+                        - lessons
+                      attributes:
+                        "$ref": "#/components/schemas/course_lessons_attributes"
+                  - type: object
+                    properties:
+                      id:
+                        type: string
+                      type:
+                        type: string
+                        enum:
+                        - courses
+                      attributes:
+                        "$ref": "#/components/schemas/courses_attributes"
+        '401':
+          description: Unauthorized, Authorization header is missing or invalid
+          content:
+            application/vnd.api+json:
+              schema:
+                "$ref": "#/components/schemas/errors_unauthorized"
+        '403':
+          description: Forbidden, insufficient permission to access the resource
+          content:
+            application/vnd.api+json:
+              schema:
+                "$ref": "#/components/schemas/errors_forbidden"
+  "/v1/hooks/course_started_sample":
+    get:
+      summary: Course started sample
+      description: |
+        Returns sample webhook payload for the `course_started` event:
+        ```
+        [
+          {
+            "id": "0",
+            "type": "customers",
+            "attributes": {
+              "name": "John Doe",
+              "email": "john.doe@example.com",
+              "avatar": null,
+              "external_user_id": null,
+              "public_bio": null,
+              "public_location": null,
+              "public_website": null,
+              "socials": null,
+              "net_revenue": "0.0",
+              "sign_in_count": 0,
+              "last_request_at": null,
+              "bounced_at": null,
+              "created_at": "2025-07-31T16:51:04.010Z",
+              "updated_at": "2025-07-31T16:51:04.010Z",
+              "last_sign_in_at": null
+            },
+            "links": {
+              "contact": "https://www.kajabi.test/api/v1/contacts/0"
+            },
+            "relationships": {
+              "site": {
+                "data": {
+                  "id": "2",
+                  "type": "sites"
+                }
+              },
+              "contact": {
+                "data": {
+                  "id": "0",
+                  "type": "contacts"
+                }
+              },
+              "offers": {
+                "data": [],
+                "links": {
+                  "self": "https://www.kajabi.test/api/v1/customers/0/relationships/offers"
+                }
+              },
+              "products": {
+                "data": []
+              }
+            },
+            "meta": {
+              "started_at": "2025-07-31T16:51:04.010Z"
+            }
+          },
+          {
+            "id": "0",
+            "type": "courses",
+            "attributes": {
+              "created_at": "2025-07-31T16:51:04.010Z",
+              "title": "Sample Course",
+              "description": null,
+              "thumbnail_url": null
+            },
+            "relationships": {
+              "site": {
+                "data": {
+                  "id": "2",
+                  "type": "sites"
+                }
+              },
+              "offers": {
+                "data": []
+              },
+              "modules": {
+                "data": []
+              },
+              "lessons": {
+                "data": []
+              }
+            }
+          }
+        ]
+        ```
+        ## Behavior
+        * Fires whenever a lesson mark leaves the member with exactly one completed lesson in the course, so it can fire more than once for the same member and course. For example, it fires again when a member marks their only completed lesson complete again, or marks every lesson incomplete and then completes one.
+        * It can be missed when the member's only earlier completions were on lessons that have since been deleted or unpublished.
+        * In a one-lesson course, a single lesson mark sends both `course_started` and `course_completed`.
+        * For a cohort course, the `courses` resource is a cohort product. The public API does not support cohort courses, so `GET /v1/courses/{id}` returns 404 for it.
+        * Kajabi can occasionally send the same event twice, and a duplicate can arrive with a different `id`, so dedupe on the customer `id`, the course `id`, and `meta.started_at`.
+
+        ## Actual Payloads
+        The actual payloads are sent to the `target_url` as a POST request with the following JSON body:
+        ```json
+        {
+          "id": "hash_id",
+          "event": "course_started",
+          "payload": [],
+        }
+        ```
+        The `payload` array is the sample response above
+      tags:
+      - Webhooks
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: Success, returns sample webhook payload
+          content:
+            application/vnd.api+json:
+              schema:
+                type: array
+                items:
+                  anyOf:
+                  - type: object
+                    properties:
+                      id:
+                        type: string
+                      type:
+                        type: string
+                        enum:
+                        - customers
+                      attributes:
+                        "$ref": "#/components/schemas/customers_attributes"
+                      meta:
+                        type: object
+                        properties:
+                          started_at:
+                            type: string
+                            format: date-time
+                  - type: object
+                    properties:
+                      id:
+                        type: string
+                      type:
+                        type: string
+                        enum:
+                        - courses
+                      attributes:
+                        "$ref": "#/components/schemas/courses_attributes"
+        '401':
+          description: Unauthorized, Authorization header is missing or invalid
+          content:
+            application/vnd.api+json:
+              schema:
+                "$ref": "#/components/schemas/errors_unauthorized"
+        '403':
+          description: Forbidden, insufficient permission to access the resource
+          content:
+            application/vnd.api+json:
+              schema:
+                "$ref": "#/components/schemas/errors_forbidden"
+  "/v1/hooks/course_completed_sample":
+    get:
+      summary: Course completed sample
+      description: |
+        Returns sample webhook payload for the `course_completed` event:
+        ```
+        [
+          {
+            "id": "0",
+            "type": "customers",
+            "attributes": {
+              "name": "John Doe",
+              "email": "john.doe@example.com",
+              "avatar": null,
+              "external_user_id": null,
+              "public_bio": null,
+              "public_location": null,
+              "public_website": null,
+              "socials": null,
+              "net_revenue": "0.0",
+              "sign_in_count": 0,
+              "last_request_at": null,
+              "bounced_at": null,
+              "created_at": "2025-07-31T16:51:04.010Z",
+              "updated_at": "2025-07-31T16:51:04.010Z",
+              "last_sign_in_at": null
+            },
+            "links": {
+              "contact": "https://www.kajabi.test/api/v1/contacts/0"
+            },
+            "relationships": {
+              "site": {
+                "data": {
+                  "id": "2",
+                  "type": "sites"
+                }
+              },
+              "contact": {
+                "data": {
+                  "id": "0",
+                  "type": "contacts"
+                }
+              },
+              "offers": {
+                "data": [],
+                "links": {
+                  "self": "https://www.kajabi.test/api/v1/customers/0/relationships/offers"
+                }
+              },
+              "products": {
+                "data": []
+              }
+            },
+            "meta": {
+              "completed_at": "2025-07-31T16:51:04.010Z"
+            }
+          },
+          {
+            "id": "0",
+            "type": "courses",
+            "attributes": {
+              "created_at": "2025-07-31T16:51:04.010Z",
+              "title": "Sample Course",
+              "description": null,
+              "thumbnail_url": null
+            },
+            "relationships": {
+              "site": {
+                "data": {
+                  "id": "2",
+                  "type": "sites"
+                }
+              },
+              "offers": {
+                "data": []
+              },
+              "modules": {
+                "data": []
+              },
+              "lessons": {
+                "data": []
+              }
+            }
+          }
+        ]
+        ```
+        ## Behavior
+        * Fires on every lesson mark while the course is complete, so it can fire more than once for the same member and course. Complete means the course shows 100% on the member's progress bar.
+        * In a one-lesson course, a single lesson mark sends both `course_started` and `course_completed`.
+        * For a cohort course, the `courses` resource is a cohort product. The public API does not support cohort courses, so `GET /v1/courses/{id}` returns 404 for it.
+        * Kajabi can occasionally send the same event twice, and a duplicate can arrive with a different `id`, so dedupe on the customer `id`, the course `id`, and `meta.completed_at`.
+
+        ## Actual Payloads
+        The actual payloads are sent to the `target_url` as a POST request with the following JSON body:
+        ```json
+        {
+          "id": "hash_id",
+          "event": "course_completed",
+          "payload": [],
+        }
+        ```
+        The `payload` array is the sample response above
+      tags:
+      - Webhooks
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: Success, returns sample webhook payload
+          content:
+            application/vnd.api+json:
+              schema:
+                type: array
+                items:
+                  anyOf:
+                  - type: object
+                    properties:
+                      id:
+                        type: string
+                      type:
+                        type: string
+                        enum:
+                        - customers
+                      attributes:
+                        "$ref": "#/components/schemas/customers_attributes"
+                      meta:
+                        type: object
+                        properties:
+                          completed_at:
+                            type: string
+                            format: date-time
+                  - type: object
+                    properties:
+                      id:
+                        type: string
+                      type:
+                        type: string
+                        enum:
+                        - courses
+                      attributes:
+                        "$ref": "#/components/schemas/courses_attributes"
+        '401':
+          description: Unauthorized, Authorization header is missing or invalid
+          content:
+            application/vnd.api+json:
+              schema:
+                "$ref": "#/components/schemas/errors_unauthorized"
+        '403':
+          description: Forbidden, insufficient permission to access the resource
+          content:
+            application/vnd.api+json:
+              schema:
+                "$ref": "#/components/schemas/errors_forbidden"
+  "/v1/hooks/assessment_completed_sample":
+    get:
+      summary: Assessment completed sample
+      description: |
+        Returns sample webhook payload for the `assessment_completed` event:
+        ```
+        [
+          {
+            "id": "0",
+            "type": "contacts",
+            "attributes": {
+              "name": "Sample Recipient",
+              "email": "sample@example.com",
+              "address_line_1": "123 Kajabi Ln",
+              "address_line_2": "Kajabi Suite 4",
+              "address_city": "Kajabiwood",
+              "address_country": "United Sites of Kajabi",
+              "address_state": "Kajabifornia",
+              "address_zip": "99999",
+              "phone_number": "5555555555",
+              "business_number": null,
+              "subscribed": false,
+              "external_user_id": null,
+              "created_at": "2025-07-31T16:51:04.010Z",
+              "updated_at": "2025-07-31T16:51:04.010Z"
+            },
+            "links": {
+              "customer": ""
+            },
+            "relationships": {
+              "site": {
+                "data": {
+                  "id": "2",
+                  "type": "sites"
+                }
+              }
+            }
+          },
+          {
+            "id": "0",
+            "type": "assessments",
+            "attributes": {
+              "title": "Sample Assessment"
+            }
+          },
+          {
+            "id": "0",
+            "type": "assessment_results",
+            "attributes": {
+              "passed": false,
+              "grade": 0,
+              "submitted_at": "2025-07-31T16:51:04.010Z"
+            }
+          }
+        ]
+        ```
+        ## Behavior
+        * Fires once, when the assessment is submitted. Grading it later sends nothing.
+        * Identifies the submitter by contact, so submitters who are not members are included.
+        * `grade` is the percentage of correct answers. A result that still needs manual grading sends `passed: null` and `grade: null`.
+        * The payload has no answers, question text, or file links.
+        * Kajabi can occasionally send the same event twice, and a duplicate can arrive with a different `id`, so dedupe on the `assessment_results` `id`.
+
+        ## Actual Payloads
+        The actual payloads are sent to the `target_url` as a POST request with the following JSON body:
+        ```json
+        {
+          "id": "hash_id",
+          "event": "assessment_completed",
+          "payload": [],
+        }
+        ```
+        The `payload` array is the sample response above
+      tags:
+      - Webhooks
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: Success, returns sample webhook payload
+          content:
+            application/vnd.api+json:
+              schema:
+                type: array
+                items:
+                  anyOf:
+                  - type: object
+                    properties:
+                      id:
+                        type: string
+                      type:
+                        type: string
+                        enum:
+                        - contacts
+                      attributes:
+                        "$ref": "#/components/schemas/contacts_attributes"
+                  - type: object
+                    properties:
+                      id:
+                        type: string
+                      type:
+                        type: string
+                        enum:
+                        - assessments
+                      attributes:
+                        type: object
+                        properties:
+                          title:
+                            type: string
+                  - type: object
+                    properties:
+                      id:
+                        type: string
+                      type:
+                        type: string
+                        enum:
+                        - assessment_results
+                      attributes:
+                        type: object
+                        properties:
+                          passed:
+                            type:
+                            - boolean
+                            - 'null'
+                          grade:
+                            type:
+                            - integer
+                            - 'null'
+                            description: Percentage of correct answers
+                          submitted_at:
+                            type: string
+                            format: date-time
+        '401':
+          description: Unauthorized, Authorization header is missing or invalid
+          content:
+            application/vnd.api+json:
+              schema:
+                "$ref": "#/components/schemas/errors_unauthorized"
+        '403':
+          description: Forbidden, insufficient permission to access the resource
+          content:
+            application/vnd.api+json:
+              schema:
+                "$ref": "#/components/schemas/errors_forbidden"
+  "/v1/hooks/member_signed_in_sample":
+    get:
+      summary: Member signed in sample
+      description: |
+        Returns sample webhook payload for the `member_signed_in` event:
+        ```
+        [
+          {
+            "id": "0",
+            "type": "customers",
+            "attributes": {
+              "name": "John Doe",
+              "email": "john.doe@example.com",
+              "avatar": null,
+              "external_user_id": null,
+              "public_bio": null,
+              "public_location": null,
+              "public_website": null,
+              "socials": null,
+              "net_revenue": "0.0",
+              "sign_in_count": 0,
+              "last_request_at": null,
+              "bounced_at": null,
+              "created_at": "2025-07-31T16:51:04.010Z",
+              "updated_at": "2025-07-31T16:51:04.010Z",
+              "last_sign_in_at": null
+            },
+            "links": {
+              "contact": "https://www.kajabi.test/api/v1/contacts/0"
+            },
+            "relationships": {
+              "site": {
+                "data": {
+                  "id": "2",
+                  "type": "sites"
+                }
+              },
+              "contact": {
+                "data": {
+                  "id": "0",
+                  "type": "contacts"
+                }
+              },
+              "offers": {
+                "data": [],
+                "links": {
+                  "self": "https://www.kajabi.test/api/v1/customers/0/relationships/offers"
+                }
+              },
+              "products": {
+                "data": []
+              }
+            },
+            "meta": {
+              "signed_in_at": "2025-07-31T16:51:04.010Z"
+            }
+          }
+        ]
+        ```
+        ## Behavior
+        * An activity signal ("this member is active"), not a count of logins. Don't use it as an audit log of sign-ins.
+        * Fires on every tracked sign-in. That includes the automatic sign-in after checkout, remember-me sign-ins, invite links, and single sign-on.
+        * In the mobile apps, the app's own login doesn't fire it, but an in-app web view that starts a session does. A refresh of the member's product list also fires it when their last tracked sign-in is more than 24 hours old.
+        * Login links don't fire it.
+        * Best effort: signing in never fails because of this webhook. If the background job can't be queued, that event is dropped and never retried. During a queue outage some events arrive late, or not at all if a server restarts first.
+        * The customer's `last_sign_in_at` is the latest tracked sign-in, the same signal that fires this event.
+        * Kajabi can occasionally send the same event twice, and a duplicate can arrive with a different `id`, so dedupe on the customer `id` and `meta.signed_in_at`.
+
+        ## Actual Payloads
+        The actual payloads are sent to the `target_url` as a POST request with the following JSON body:
+        ```json
+        {
+          "id": "hash_id",
+          "event": "member_signed_in",
+          "payload": [],
+        }
+        ```
+        The `payload` array is the sample response above
+      tags:
+      - Webhooks
+      security:
+      - Bearer: []
+      responses:
+        '200':
+          description: Success, returns sample webhook payload
+          content:
+            application/vnd.api+json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    type:
+                      type: string
+                      enum:
+                      - customers
+                    attributes:
+                      "$ref": "#/components/schemas/customers_attributes"
+                    meta:
+                      type: object
+                      properties:
+                        signed_in_at:
+                          type: string
+                          format: date-time
+        '401':
+          description: Unauthorized, Authorization header is missing or invalid
+          content:
+            application/vnd.api+json:
+              schema:
+                "$ref": "#/components/schemas/errors_unauthorized"
+        '403':
+          description: Forbidden, insufficient permission to access the resource
+          content:
+            application/vnd.api+json:
+              schema:
+                "$ref": "#/components/schemas/errors_forbidden"
   "/v1/kajabi_payments_payouts":
     get:
       summary: List payouts
@@ -6886,7 +7795,7 @@ paths:
         ```json
         {
           "data": [{
-            "id": "payout_abc123",
+            "id": "kp_po_abc123",
             "type": "kajabi_payments_payouts",
             "attributes": {
               "status": "Paid",
@@ -6994,7 +7903,7 @@ paths:
         ```json
         {
           "data": {
-            "id": "payout_abc123",
+            "id": "kp_po_abc123",
             "type": "kajabi_payments_payouts",
             "attributes": {
               "status": "Paid",
@@ -7044,7 +7953,7 @@ paths:
       - name: id
         in: path
         required: true
-        description: Payout ID, for example payout_abc123
+        description: Payout ID, for example kp_po_abc123
         schema:
           type: string
       - name: filter[site_id]
@@ -7461,6 +8370,27 @@ paths:
           }]
         }
         ```
+        ## Filter by Published
+        Use the `filter[published]` parameter to narrow by publish state. Omit it and
+        every offer is returned, drafts included:
+        ### Get published offers only
+        * `GET /v1/offers?filter[published]=true`
+        ### Get draft offers only
+        * `GET /v1/offers?filter[published]=false`
+
+        Response will include only offers that have been published
+        ```json
+        {
+          "data": [{
+            "id": "456",
+            "type": "offers",
+            "attributes": {
+              "title": "Advanced Course Bundle",
+              "price_in_cents": 19900
+            }
+          }]
+        }
+        ```
         ## Using Multiple Parameters Together
         You can combine pagination, sorting, sparse fields and filtering in a single request:
         ### Get page 2 of offers for site 123, sorted by price_in_cents descending, including only title and price_in_cents fields
@@ -7548,6 +8478,12 @@ paths:
         description: Filter by description contains, for example ?filter[description_cont]=course
         schema:
           type: string
+      - name: filter[published]
+        in: query
+        required: false
+        description: Filter by publish state, for example ?filter[published]=true
+        schema:
+          type: boolean
       responses:
         '200':
           description: Success, list of offers which the current user may access
@@ -9098,6 +10034,8 @@ paths:
         * `deactivated_at` (string) - Date and time the purchase was deactivated
         * `deactivation_reason` (string) - Reason for deactivation
         * `coupon_code` (string) - Coupon code used for the purchase
+        * `discount_amount_in_cents` (integer) - Discount currently applying to the purchase in cents. Present only while a Kajabi-managed discount (a subscription-retention or upsell discount) is in effect, in which case `coupon_code` is omitted because the code is internal. Omitted once that discount ends; the discount on each past charge remains available on the transaction. (limited availability)
+        * `discount_amount_decimal` (number) - The same discount as a decimal amount, for example `2.0`. (limited availability)
         * `source` (string) - Source of the purchase
         * `referrer` (string) - Referrer of the purchase
         * `quantity` (integer) - Quantity of the purchase
@@ -9833,6 +10771,8 @@ paths:
           * `payment_type` (string) - Indicates the payment structure (nullable)
           * `amount_in_cents` (integer) - The USD price in cents (for precise decimal handling) can be negative for refunds
           * `sales_tax_in_cents` (integer) - The USD sales tax in cents (for precise decimal handling)
+          * `discount_amount_in_cents` (integer) - Discount that came off this charge in cents, resolved against the discount the charge was actually billed under, so it matches the member's receipt for the same charge. Present only when a Kajabi-managed discount (a subscription-retention or upsell discount) applied to the charge. Present on charge and subscription_charge rows only. Not present on a charge collected at full price after that discount ended, on refunds, disputes, payment-plan payoffs, or on a single transaction covering several purchases. (limited availability)
+          * `discount_amount_decimal` (number) - The same discount as a decimal amount, for example `2.0`. (limited availability)
           * `payment_fee_in_cents` (integer) - Payment processing fee associated with the transaction (Kajabi Payments only)
           * `currency` (string) - String representing the currency code (nullable) automatically upcased
             * Defaults to "USD" if not specified
@@ -10791,6 +11731,10 @@ components:
           type: string
           nullable: true
           description: ISO 8601 date-time, read only
+        last_sign_in_at:
+          type: string
+          nullable: true
+          description: ISO 8601 date-time, read only
         bounced_at:
           type: string
           nullable: true
@@ -11184,6 +12128,11 @@ components:
           - tag_removed
           - payment_succeeded
           - order_created
+          - lesson_completed
+          - course_started
+          - course_completed
+          - assessment_completed
+          - member_signed_in
         target_url:
           type: string
         created_at:
@@ -11443,6 +12392,81 @@ components:
               type: string
             current:
               type: string
+    offer_plans_attributes:
+      type: object
+      properties:
+        name:
+          type:
+          - string
+          - 'null'
+          description: Plan name. Null for an unnamed plan
+        label:
+          type:
+          - string
+          - 'null'
+          description: Badge text, for example "Most popular"
+        color:
+          type:
+          - string
+          - 'null'
+          description: Hex color, for example "#336699"
+    offer_pricing_options_attributes:
+      type: object
+      properties:
+        payment_type:
+          type: string
+          enum:
+          - free
+          - single
+          - subscription
+          - multipay
+        checkout_token:
+          type:
+          - string
+          - 'null'
+        amount_in_cents:
+          type: integer
+          description: Price per payment, excluding any setup fee. The minimum for
+            a pay-what-you-want option
+        currency:
+          type: string
+          description: ISO 4217 currency code
+        interval:
+          type:
+          - string
+          - 'null'
+          description: Billing interval, for example "month". Null unless the option
+            is recurring
+        interval_count:
+          type:
+          - integer
+          - 'null'
+          description: Null unless the option is recurring
+        number_of_payments:
+          type:
+          - integer
+          - 'null'
+          description: Null unless the option is a payment plan
+        trial_period_days:
+          type:
+          - integer
+          - 'null'
+          description: 0 when there's no trial. Null unless the option is recurring
+        setup_fee_in_cents:
+          type:
+          - integer
+          - 'null'
+          description: 0 when there's no setup fee. Null unless the option is recurring
+        pay_what_you_want:
+          type: boolean
+          description: True when the buyer chooses the amount, with amount_in_cents
+            as the minimum
+        checkout_url:
+          type:
+          - string
+          - 'null'
+          description: Checkout link that preselects this option. Add &isolate=true
+            to show only this option at checkout. Null when the option has no checkout_token
     courses_attributes:
       type: object
       properties:
