@@ -1,0 +1,164 @@
+---
+title: "Member Activity"
+description: "Track lesson and course completion, assessment submissions, and member sign-ins with webhooks and the course progress endpoint."
+---
+
+Five webhook events report what members do in your courses and site. `GET /v1/course_progress` returns where each member stands in a course, so you can backfill history and reconcile anything a webhook missed.
+
+* Use the webhooks for near real-time updates.
+* Use `GET /v1/course_progress` for the initial load, for incremental syncs, and for a periodic full pass.
+
+## API keys
+
+Creating, listing, and deleting hooks requires the account owner's API key. Keys made with the "Create User API Key" button can't manage hooks.
+
+* Find the owner's key on the [Public API](https://app.kajabi.com/admin/settings/public_api) settings page, under **User API Keys**. It is named after the account owner and shows `Scope: owner`.
+* Only Owners and Co-owners can view or manage API keys.
+* A custom key can call `GET /v1/course_progress` if it has the `view:course_progress` permission.
+
+See [Authentication](/api-reference/authentication) for exchanging the `client_id` and `client_secret` for an access token.
+
+## Events
+
+| Event | Fires when | Payload resources | Required API Scopes |
+|-|-|-|-|
+| `lesson_completed` | A lesson is marked complete for a member | `customers`, `lessons`, `courses` | `view:course_progress` |
+| `course_started` | A member completes their first lesson in a course | `customers`, `courses` | `view:course_progress` |
+| `course_completed` | A member has completed every published lesson in a course | `customers`, `courses` | `view:course_progress` |
+| `assessment_completed` | Someone submits an assessment | `contacts`, `assessments`, `assessment_results` | `view:assessments` |
+| `member_signed_in` | A member signs in | `customers` | `view:customers` |
+
+Each event has a sample endpoint that returns an example payload:
+[lesson_completed](/api-reference/webhooks/lesson-completed-sample),
+[course_started](/api-reference/webhooks/course-started-sample),
+[course_completed](/api-reference/webhooks/course-completed-sample),
+[assessment_completed](/api-reference/webhooks/assessment-completed-sample),
+[member_signed_in](/api-reference/webhooks/member-signed-in-sample).
+
+The event time is in the `meta` of the `customers` resource: `meta.completed_at` for `lesson_completed` and `course_completed`, `meta.started_at` for `course_started`, and `meta.signed_in_at` for `member_signed_in`. For `assessment_completed`, use `submitted_at` on the `assessment_results` resource.
+
+### lesson_completed
+
+* Fires each time a lesson is marked complete for a member, including a lesson that was already complete. Marking a lesson incomplete sends nothing.
+* Marking a live session complete in the admin marks its lesson complete for every member of the course, so expect a burst of events.
+
+### course_started
+
+* Fires whenever a lesson mark leaves the member with exactly one completed lesson in the course, so it can fire more than once for the same member and course. For example, it fires again when a member marks their only completed lesson complete again, or marks every lesson incomplete and then completes one.
+* It can be missed when the member's only earlier completions were on lessons that have since been deleted or unpublished.
+* In a one-lesson course, a single lesson mark sends both `course_started` and `course_completed`.
+
+### course_completed
+
+* Fires on every lesson mark while the course is complete, so it can fire more than once for the same member and course. Complete means the course shows 100% on the member's progress bar.
+
+### Cohort courses
+
+For `lesson_completed`, `course_started`, and `course_completed` in a cohort course, the `courses` resource is a cohort product. The public API does not support cohort courses, so [`GET /v1/courses/{id}`](/api-reference/courses/course-details) returns 404 for it, and so does `GET /v1/course_progress`.
+
+### assessment_completed
+
+* Fires once, when the assessment is submitted. Grading it later sends nothing.
+* Identifies the submitter by contact, so submitters who are not members are included.
+* `grade` is the percentage of correct answers. A result that still needs manual grading sends `passed: null` and `grade: null`.
+* The payload has no answers, question text, or file links.
+
+### member_signed_in
+
+* An activity signal ("this member is active"), not a count of logins. Don't use it as an audit log of sign-ins.
+* Fires on every tracked sign-in. That includes the automatic sign-in after checkout, remember-me sign-ins, invite links, and single sign-on.
+* In the mobile apps, the app's own login doesn't fire it, but an in-app web view that starts a session does. A refresh of the member's product list also fires it when their last tracked sign-in is more than 24 hours old.
+* Login links don't fire it.
+* Best effort: signing in never fails because of this webhook. If the background job can't be queued, that event is dropped and never retried. During a queue outage some events arrive late, or not at all if a server restarts first.
+* The customer's `last_sign_in_at` (see [Customer details](/api-reference/customers/customer-details)) is the latest tracked sign-in, the same signal that fires this event.
+
+## Creating a hook
+
+Send [`POST /v1/hooks`](/api-reference/webhooks/create-hook) with the owner's key.
+
+* `target_url` must use `https://`.
+* `event` is one of the event names above.
+* `resource_id` is optional. For `lesson_completed`, `course_started`, and `course_completed` it is a course id. For `assessment_completed` it is an assessment id. Omit it to receive the event for every course or assessment.
+* `member_signed_in` has no resource, so a `resource_id` filters nothing and the hook fires for every member.
+
+Example request for lessons completed in one course:
+
+```json
+{
+  "data": {
+    "type": "hooks",
+    "attributes": {
+      "target_url": "https://example.com/webhook",
+      "event": "lesson_completed",
+      "resource_id": "123"
+    },
+    "relationships": {
+      "site": {
+        "data": {
+          "id": "456",
+          "type": "sites"
+        }
+      }
+    }
+  }
+}
+```
+
+Each delivery is a POST to `target_url` with this JSON body, where `payload` is the array shown on the event's sample page:
+
+```json
+{
+  "id": "hash_id",
+  "event": "lesson_completed",
+  "payload": []
+}
+```
+
+The `id` is a UUID for this delivery. Each hook gets its own `id` for each event. A retry of the same delivery keeps its `id`, but a rare duplicate can arrive with a new one.
+
+## Delivery
+
+* Kajabi can occasionally send the same event twice, and the duplicate can arrive with a different `id`. Dedupe on the payload instead: the customer `id`, the lesson or course `id` when there is one, and the `meta` timestamp, or the `assessment_results` `id` for `assessment_completed`. Each member activity sample lists its exact fields.
+* A 4xx response other than 429, a 5xx response, no response within 30 seconds, or a connection failure gets one attempt and is not retried.
+* A 429 response is retried later.
+* A delivery that fails on Kajabi's side is retried with the same `id`.
+* A 410 response deletes the hook.
+* Events are not ordered. Don't rely on one event arriving before another, even for the same member.
+* Payloads are not signed.
+
+Because a failed delivery is not retried, use `GET /v1/course_progress` to catch up on course activity your endpoint missed.
+
+## Course progress
+
+[`GET /v1/course_progress`](/api-reference/course-progress/list-member-progress-for-a-course) returns one row per member with a progress record for a course, with overall completion (`completed_lessons`, `total_lessons`, `percent_complete`, `completed`) and per-lesson detail. It requires the `view:course_progress` scope.
+
+* `filter[product_id]` is required and is the course id. Other product ids, including cohort courses, access levels, coaching, and communities, return 404.
+* `filter[customer_id]` limits the results to one member.
+* `filter[updated_since]` returns only rows updated at or after an ISO 8601 time.
+* A progress record can exist with no completed lessons and no video progress (viewing the course can create one), so rows won't line up one-to-one with `course_started` webhooks.
+* Deleted members are not returned.
+* Only lessons marked complete count toward completion. A lesson that is partly watched but not marked complete does not.
+* Only published lessons are included.
+
+### Paging
+
+* Pages are cursor based. Follow `links.next` to get the next page; it is absent on the last page.
+* `page[after]` is the `id` of the last row returned.
+* `page[size]` defaults to 30 and is capped at 100.
+* There is no total count (`meta.total`).
+* `page[number]` is not supported and returns 400.
+* Results are always ordered by `id`. The `sort` parameter is not supported.
+
+### Incremental sync
+
+1. Record the time your sync starts.
+2. Request `GET /v1/course_progress?filter[product_id]=<course id>&filter[updated_since]=<window start>&page[size]=100` and follow `links.next` until it is absent.
+3. Start the next window at the time recorded in step 1, minus a few minutes.
+
+Don't start the next window at the newest `updated_at` you received. A row that changes after your walk has passed it gets a timestamp older than rows returned later in the same walk, so a window that starts at the newest `updated_at` skips it until it changes again. On a large course a full walk takes thousands of requests, so that gap is wide. The same margin covers rows whose insert commits after a higher `id` was already returned.
+
+`filter[updated_since]` matches member activity only. Publishing or unpublishing lessons changes `total_lessons` and `percent_complete` without changing `updated_at`.
+
+### Periodic full pass
+
+`filter[updated_since]` never returns rows that moved to another customer in a contact merge, rows deleted as merge duplicates, or deleted members. Run a periodic full pass (no `filter[updated_since]`) to reconcile, and after you publish or unpublish lessons.
