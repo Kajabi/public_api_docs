@@ -9,7 +9,7 @@ Added the `GET /v1/course_progress` endpoint, which returns each member's progre
 
 Added `last_sign_in_at` to customers.
 
-Added the `view:course_progress` and `view:assessments` scopes, which can now be selected when creating a User API Key.
+Added the `view:course_progress` and `view:assessments` scopes. A User API Key with `view:course_progress` can call `GET /v1/course_progress`. Creating hooks still requires the account owner's key.
 
 Corrected the webhook `id` description: it is a UUID for each delivery, not the id of the resource that triggered the event. Added a Delivery section to the create hook docs covering duplicates, retries, hook deletion on a 410 response, ordering, and signing.
 
