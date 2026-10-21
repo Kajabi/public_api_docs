@@ -5612,7 +5612,7 @@ paths:
         | `tag_removed` | Tag is removed from a contact | `view:contacts` |
         | `lesson_completed` | A lesson is marked complete for a member | `view:course_progress` |
         | `course_started` | A member completes their first lesson in a course | `view:course_progress` |
-        | `course_completed` | A member has completed every published lesson in a course | `view:course_progress` |
+        | `course_completed` | A member's progress in a course reaches 100% | `view:course_progress` |
         | `assessment_completed` | Someone submits an assessment | `view:assessments` |
         | `member_signed_in` | A member signs in (see the sample for which sign-ins count) | `view:customers` |
 
@@ -5681,7 +5681,7 @@ paths:
         The actual payloads are sent to the `target_url` as a POST request with the following JSON body:
         ```json
         {
-          "id": "hash_id",
+          "id": "6f1c2a4e-3b7d-11ef-9a52-0242ac120002",
           "event": "tag_added",
           "payload": [],
         }
@@ -5691,8 +5691,8 @@ paths:
         The `payload` is the actual payload of the event and the content will be similar to the sample payloads above.
 
         ## Delivery
-        * Kajabi can occasionally send the same event twice, and the duplicate can arrive with a different `id`. Dedupe on the payload instead: the customer `id`, the lesson or course `id` when there is one, and the `meta` timestamp, or the `assessment_results` `id` for `assessment_completed`. Each member activity sample lists its exact fields.
-        * A 4xx response other than 429, a 5xx response, no response within 30 seconds, or a connection failure gets one attempt and is not retried.
+        * Kajabi can occasionally send the same event twice, and the duplicate can arrive with a different `id`. For member activity events, dedupe on the payload instead: the customer `id`, the lesson or course `id` when there is one, and the `meta` timestamp, or the `assessment_results` `id` for `assessment_completed`. Each member activity sample lists its exact fields.
+        * Any response other than 2xx, 410 or 429, no response within 30 seconds, or a connection failure gets one attempt and is not retried.
         * A 429 response is retried later.
         * A delivery that fails on Kajabi's side is retried with the same `id`.
         * A 410 response deletes the hook.
