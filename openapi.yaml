@@ -8214,6 +8214,161 @@ paths:
             application/vnd.api+json:
               schema:
                 "$ref": "#/components/schemas/errors_forbidden"
+  "/v1/offers/{offer_id}/plans":
+    get:
+      summary: List an offer's plans
+      description: |
+        Plans for an offer (not archived), in the order the offer shows them. Plans have no
+        position attribute, so the response order is the display order.
+
+        Use `include=pricing_options` to include each plan's pricing options.
+
+        Requires the `view:offers` scope.
+      tags:
+      - Offers
+      security:
+      - Bearer: []
+      parameters:
+      - name: offer_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: page[number]
+        in: query
+        required: false
+        schema:
+          type: number
+      - name: page[size]
+        in: query
+        required: false
+        schema:
+          type: number
+      responses:
+        '200':
+          description: Success, the offer's plans in display order
+          content:
+            application/vnd.api+json:
+              schema:
+                "$ref": "#/components/schemas/offer_plans_index_response"
+        '401':
+          description: Unauthorized, Authorization header is missing or invalid
+          content:
+            application/vnd.api+json:
+              schema:
+                "$ref": "#/components/schemas/errors_unauthorized"
+        '403':
+          description: Forbidden, insufficient permission to access the resource
+          content:
+            application/vnd.api+json:
+              schema:
+                "$ref": "#/components/schemas/errors_forbidden"
+        '404':
+          description: Not found, the offer is archived
+          content:
+            application/vnd.api+json:
+              schema:
+                "$ref": "#/components/schemas/errors_not_found"
+  "/v1/offer_plans/{id}":
+    get:
+      summary: Offer plan details
+      description: |
+        A single plan. Its `products` relationship lists only the products this plan grants;
+        the offer's own products stay on the offer.
+
+        Use `include=pricing_options,products` to include related resources.
+
+        Requires the `view:offers` scope.
+      tags:
+      - Offers
+      security:
+      - Bearer: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success, the plan
+          content:
+            application/vnd.api+json:
+              schema:
+                "$ref": "#/components/schemas/offer_plans_show_response"
+        '401':
+          description: Unauthorized, Authorization header is missing or invalid
+          content:
+            application/vnd.api+json:
+              schema:
+                "$ref": "#/components/schemas/errors_unauthorized"
+        '403':
+          description: Forbidden, insufficient permission to access the resource
+          content:
+            application/vnd.api+json:
+              schema:
+                "$ref": "#/components/schemas/errors_forbidden"
+        '404':
+          description: Not found, the plan is deleted
+          content:
+            application/vnd.api+json:
+              schema:
+                "$ref": "#/components/schemas/errors_not_found"
+  "/v1/offers/{offer_id}/pricing_options":
+    get:
+      summary: List an offer's pricing options
+      description: |
+        Pricing options for an offer (not archived), in the order the offer shows them: by plan,
+        then by each option's place within its plan. Options not on a plan come last.
+
+        Use `include=plan` to include each option's plan.
+
+        Requires the `view:offers` scope.
+      tags:
+      - Offers
+      security:
+      - Bearer: []
+      parameters:
+      - name: offer_id
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: page[number]
+        in: query
+        required: false
+        schema:
+          type: number
+      - name: page[size]
+        in: query
+        required: false
+        schema:
+          type: number
+      responses:
+        '200':
+          description: Success, the offer's pricing options in display order
+          content:
+            application/vnd.api+json:
+              schema:
+                "$ref": "#/components/schemas/offer_pricing_options_index_response"
+        '401':
+          description: Unauthorized, Authorization header is missing or invalid
+          content:
+            application/vnd.api+json:
+              schema:
+                "$ref": "#/components/schemas/errors_unauthorized"
+        '403':
+          description: Forbidden, insufficient permission to access the resource
+          content:
+            application/vnd.api+json:
+              schema:
+                "$ref": "#/components/schemas/errors_forbidden"
+        '404':
+          description: Not found, the offer belongs to another site
+          content:
+            application/vnd.api+json:
+              schema:
+                "$ref": "#/components/schemas/errors_not_found"
   "/v1/offers":
     get:
       summary: List offers
@@ -8536,10 +8691,17 @@ paths:
         * `single` (boolean) - Whether the offer is a single offer
         * `free` (boolean) - Whether the offer is a free offer
         * `image_url` (string) - URL to the image associated with the offer (nullable)
+        * `plan_changes_enabled` (boolean) - Whether members can switch between the offer's plans
+
+        ## Relationships
+        * `products` - The offer's products
+        * `plans` (`offer_plans`) - The offer's plans, in the order shown at checkout. Empty when the offer has no plans
+        * `pricing_options` (`offer_pricing_options`) - The offer's pricing options. Can be empty for a single-price offer
 
         ## Include Relationships
-        Use the `include` parameter to include related products:
+        Use the `include` parameter to include related products, plans or pricing options:
         * `GET /v1/offers/123?include=products`
+        * `GET /v1/offers/123?include=plans,pricing_options`
 
         Response will include products relationship
         ```json
@@ -8655,7 +8817,7 @@ paths:
       - name: include
         in: query
         required: false
-        description: Load the related resources, for example ?include=products
+        description: Load the related resources, for example ?include=products,plans,pricing_options
         schema:
           type: string
       - name: fields[offers]
@@ -9917,6 +10079,10 @@ paths:
         ### Filter by customer
         Use the `filter[customer_id]` parameter to get purchases for a specific customer:
         * `GET /v1/purchases?filter[customer_id]=456789`
+        ### Filter by plan or pricing option
+        Use the `filter[plan_id]` or `filter[pricing_option_id]` parameter to get purchases of a specific offer plan or pricing option:
+        * `GET /v1/purchases?filter[plan_id]=8`
+        * `GET /v1/purchases?filter[pricing_option_id]=42`
 
         List of attributes that may be used to filter: multipay_payments_made, opt_in, currency, effective_start_at, cardholder_name, billing_address_zip, deactivated_at, deactivation_reason, coupon_code, source, referrer, quantity, created_at, updated_at
 
@@ -10000,6 +10166,18 @@ paths:
         description: Filter by customer_id, for example ?filter[customer_id]=456789
         schema:
           type: string
+      - name: filter[plan_id]
+        in: query
+        required: false
+        description: Filter by offer plan, for example ?filter[plan_id]=8
+        schema:
+          type: string
+      - name: filter[pricing_option_id]
+        in: query
+        required: false
+        description: Filter by offer pricing option, for example ?filter[pricing_option_id]=42
+        schema:
+          type: string
       responses:
         '200':
           description: Success, list of purchases which the current user may access
@@ -10026,7 +10204,10 @@ paths:
         Details of a purchase (of an offer)
 
         ## Purchase Attributes
-        * `amount_in_cents` (integer) - Price of the purchase in cents
+        * `amount_in_cents` (integer) - List price in cents of the pricing option bought, excluding any setup fee. For pay-what-you-want, the amount the buyer chose
+        * `plan_name` (string) - Name of the offer plan bought. Null when there is no plan, or the plan is unnamed or deleted
+        * `replaced_purchase_id` (string) - The purchase this one replaced through a plan change
+        * `replacement_purchase_id` (string) - The purchase that replaced this one through a plan change
         * `payment_type` (string) - Type of payment
         * `trial` (integer) - Number of trial days. (subscription and payment plans only)
         * `trial_end_at` (string) - Date the trial ends
@@ -12328,6 +12509,9 @@ components:
           type:
           - string
           - 'null'
+        plan_changes_enabled:
+          type: boolean
+          description: Whether members can switch between this offer's plans
       required:
       - title
     offers_index_response:
@@ -12353,6 +12537,20 @@ components:
                       data:
                         "$ref": "#/components/schemas/resource_identifier"
                   products:
+                    type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          "$ref": "#/components/schemas/resource_identifier"
+                  plans:
+                    type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          "$ref": "#/components/schemas/resource_identifier"
+                  pricing_options:
                     type: object
                     properties:
                       data:
@@ -12387,6 +12585,20 @@ components:
                     data:
                       "$ref": "#/components/schemas/resource_identifier"
                 products:
+                  type: object
+                  properties:
+                    data:
+                      type: array
+                      items:
+                        "$ref": "#/components/schemas/resource_identifier"
+                plans:
+                  type: object
+                  properties:
+                    data:
+                      type: array
+                      items:
+                        "$ref": "#/components/schemas/resource_identifier"
+                pricing_options:
                   type: object
                   properties:
                     data:
@@ -12465,16 +12677,96 @@ components:
           - integer
           - 'null'
           description: 0 when there's no setup fee. Null unless the option is recurring
-        pay_what_you_want:
-          type: boolean
-          description: True when the buyer chooses the amount, with amount_in_cents
-            as the minimum
         checkout_url:
           type:
           - string
           - 'null'
           description: Checkout link that preselects this option. Add &isolate=true
             to show only this option at checkout. Null when the option has no checkout_token
+    offer_plans_resource:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+        attributes:
+          "$ref": "#/components/schemas/offer_plans_attributes"
+        relationships:
+          type: object
+          properties:
+            offer:
+              type: object
+              properties:
+                data:
+                  "$ref": "#/components/schemas/resource_identifier"
+            products:
+              type: object
+              description: Products only this plan grants. The offer's own products
+                stay on the offer
+              properties:
+                data:
+                  type: array
+                  items:
+                    "$ref": "#/components/schemas/resource_identifier"
+            pricing_options:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    "$ref": "#/components/schemas/resource_identifier"
+    offer_plans_index_response:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            "$ref": "#/components/schemas/offer_plans_resource"
+        links:
+          type: object
+    offer_plans_show_response:
+      type: object
+      properties:
+        data:
+          "$ref": "#/components/schemas/offer_plans_resource"
+    offer_pricing_options_index_response:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              type:
+                type: string
+              attributes:
+                "$ref": "#/components/schemas/offer_pricing_options_attributes"
+              relationships:
+                type: object
+                properties:
+                  offer:
+                    type: object
+                    properties:
+                      data:
+                        "$ref": "#/components/schemas/resource_identifier"
+                  plan:
+                    type: object
+                    description: Null when the option isn't on a plan
+                    properties:
+                      data:
+                        type:
+                        - object
+                        - 'null'
+                        properties:
+                          id:
+                            type: string
+                          type:
+                            type: string
+        links:
+          type: object
     courses_attributes:
       type: object
       properties:
@@ -12762,6 +13054,23 @@ components:
           type: string
         currency_symbol:
           type: string
+        purchase_id:
+          type:
+          - integer
+          - 'null'
+          description: Null unless the item was purchased
+        plan_id:
+          type:
+          - integer
+          - 'null'
+          description: Plan the item was bought on, which may since have been archived.
+            Null when the purchase has no plan
+        pricing_option_id:
+          type:
+          - integer
+          - 'null'
+          description: Pricing option the item was bought on, which may since have
+            been archived. Null when the purchase has no pricing option
     order_items_index_response:
       type: object
       properties:
@@ -12916,7 +13225,27 @@ components:
       type: object
       properties:
         amount_in_cents:
-          type: integer
+          type:
+          - integer
+          - 'null'
+          description: List price of the pricing option bought, excluding any setup
+            fee. For pay-what-you-want, the amount the buyer chose
+        plan_name:
+          type:
+          - string
+          - 'null'
+          description: Name of the plan bought. Null when there is no plan, or the
+            plan is unnamed or deleted
+        replaced_purchase_id:
+          type:
+          - string
+          - 'null'
+          description: The purchase this one replaced through a plan change
+        replacement_purchase_id:
+          type:
+          - string
+          - 'null'
+          description: The purchase that replaced this one through a plan change
         payment_type:
           type: string
         multipay_payments_made:
@@ -13013,6 +13342,34 @@ components:
                             type: string
                           type:
                             type: string
+                  plan:
+                    type: object
+                    properties:
+                      data:
+                        type:
+                        - object
+                        - 'null'
+                        properties:
+                          id:
+                            type: string
+                          type:
+                            type: string
+                            enum:
+                            - offer_plans
+                  pricing_option:
+                    type: object
+                    properties:
+                      data:
+                        type:
+                        - object
+                        - 'null'
+                        properties:
+                          id:
+                            type: string
+                          type:
+                            type: string
+                            enum:
+                            - offer_pricing_options
                   transactions:
                     type: object
                     properties:
@@ -13081,6 +13438,34 @@ components:
                           type: string
                         type:
                           type: string
+                plan:
+                  type: object
+                  properties:
+                    data:
+                      type:
+                      - object
+                      - 'null'
+                      properties:
+                        id:
+                          type: string
+                        type:
+                          type: string
+                          enum:
+                          - offer_plans
+                pricing_option:
+                  type: object
+                  properties:
+                    data:
+                      type:
+                      - object
+                      - 'null'
+                      properties:
+                        id:
+                          type: string
+                        type:
+                          type: string
+                          enum:
+                          - offer_pricing_options
                 transactions:
                   type: object
                   properties:
