@@ -41,16 +41,19 @@ The event time is in the `meta` of the `customers` resource: `meta.completed_at`
 
 * Fires each time a lesson is marked complete for a member, including a lesson that was already complete. Marking a lesson incomplete sends nothing.
 * Marking a live session complete in the admin marks its lesson complete for every member of the course, so expect a burst of events.
+* Delivery isn't guaranteed: rarely, an event is never sent. Run a periodic full pass of `GET /v1/course_progress` to catch anything missed.
 
 ### course_started
 
 * Fires whenever a lesson mark leaves the member with exactly one completed lesson in the course, so it can fire more than once for the same member and course. For example, it fires again when a member marks their only completed lesson complete again, or marks every lesson incomplete and then completes one.
 * It can be missed when the member's only earlier completions were on lessons that have since been deleted or unpublished.
 * In a one-lesson course, a single lesson mark sends both `course_started` and `course_completed`.
+* Delivery isn't guaranteed: rarely, an event is never sent. Run a periodic full pass of `GET /v1/course_progress` to catch anything missed.
 
 ### course_completed
 
-* Fires on every lesson mark while the course is complete, so it can fire more than once for the same member and course. Complete means the course shows 100% on the member's progress bar.
+* Fires on every lesson mark while the course is complete, so it can fire more than once for the same member and course. Complete uses the same rule as the member's progress bar in Kajabi: the course shows 100%. That percentage is rounded to a whole number, so on a course with 200 or more lessons a member can be complete with one lesson left.
+* Delivery isn't guaranteed: rarely, an event is never sent. Run a periodic full pass of `GET /v1/course_progress` to catch anything missed.
 
 ### Cohort courses
 
@@ -58,10 +61,12 @@ For `lesson_completed`, `course_started`, and `course_completed` in a cohort cou
 
 ### assessment_completed
 
-* Fires once, when the assessment is submitted. Grading it later sends nothing.
+* Fires once, when the assessment is submitted.
 * Identifies the submitter by contact, so submitters who are not members are included.
-* `grade` is the percentage of correct answers. A result that still needs manual grading sends `passed: null` and `grade: null`.
+* `grade` is the percentage of multiple-choice and multiple-select answers that are correct. Paragraph, file-upload and unanswered questions don't count, and if there are none, `grade` is 0.
+* If automatic grading was off when the assessment was submitted, `passed` and `grade` are `null`.
 * The payload has no answers, question text, or file links.
+* Delivery isn't guaranteed: rarely, an event is never sent.
 
 ### member_signed_in
 
@@ -69,7 +74,7 @@ For `lesson_completed`, `course_started`, and `course_completed` in a cohort cou
 * Fires on every tracked sign-in. That includes the automatic sign-in after checkout, remember-me sign-ins, invite links, and single sign-on.
 * In the mobile apps, the app's own login doesn't fire it, but an in-app web view that starts a session does. A refresh of the member's product list also fires it when their last tracked sign-in is more than 24 hours old.
 * Login links don't fire it.
-* Best effort: signing in never fails because of this webhook. If the background job can't be queued, that event is dropped and never retried. During a queue outage some events arrive late, or not at all if a server restarts first.
+* Signing in never fails because of this webhook. Rarely, this event arrives late or is never sent.
 * The customer's `last_sign_in_at` (see [Customer details](/api-reference/customers/customer-details)) is the latest tracked sign-in, the same signal that fires this event.
 
 ## Creating a hook
@@ -121,12 +126,12 @@ The `id` is a UUID for this delivery. Each hook gets its own `id` for each event
 * Kajabi can occasionally send the same event twice, and the duplicate can arrive with a different `id`. For member activity events, dedupe on the payload instead: the customer `id`, the lesson or course `id` when there is one, and the `meta` timestamp, or the `assessment_results` `id` for `assessment_completed`. Each member activity sample lists its exact fields.
 * Any response other than 2xx, 410 or 429, no response within 30 seconds, or a connection failure gets one attempt and is not retried.
 * A 429 response is retried later.
-* A delivery that fails on Kajabi's side is retried with the same `id`.
 * A 410 response deletes the hook.
 * Events are not ordered. Don't rely on one event arriving before another, even for the same member.
+* Delivery isn't guaranteed. Rarely, an event is never sent.
 * Payloads are not signed.
 
-Because a failed delivery is not retried, use `GET /v1/course_progress` to catch up on course activity your endpoint missed.
+Because a failed delivery is not retried and an event can occasionally be lost, use `GET /v1/course_progress` to catch up on course activity your endpoint missed.
 
 ## Course progress
 
@@ -139,6 +144,7 @@ Because a failed delivery is not retried, use `GET /v1/course_progress` to catch
 * Deleted members are not returned.
 * Only lessons marked complete count toward completion. A lesson that is partly watched but not marked complete does not.
 * Only published lessons are included.
+* `completed` uses the same rule as the member's progress bar: the percentage is rounded to a whole number, so on a course with 200 or more lessons a member can be complete with one lesson left.
 
 ### Paging
 
@@ -155,7 +161,7 @@ Because a failed delivery is not retried, use `GET /v1/course_progress` to catch
 2. Request `GET /v1/course_progress?filter[product_id]=<course id>&filter[updated_since]=<window start>&page[size]=100` and follow `links.next` until it is absent.
 3. Start the next window at the time recorded in step 1, minus a few minutes.
 
-Don't start the next window at the newest `updated_at` you received. A row that changes after your walk has passed it gets a timestamp older than rows returned later in the same walk, so a window that starts at the newest `updated_at` skips it until it changes again. On a large course a full walk takes thousands of requests, so that gap is wide. The same margin covers rows whose insert commits after a higher `id` was already returned.
+Don't start the next window at the newest `updated_at` you received. A row that changes after your walk has passed it gets a timestamp older than rows returned later in the same walk, so a window that starts at the newest `updated_at` skips it until it changes again. On a large course a full walk takes thousands of requests, so that gap is wide. The same margin covers progress that was still being saved while your walk ran.
 
 `filter[updated_since]` matches member activity only. Publishing or unpublishing lessons changes `total_lessons` and `percent_complete` without changing `updated_at`.
 
