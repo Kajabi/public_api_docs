@@ -2573,9 +2573,10 @@ paths:
         * Deleted members are not returned.
         * Only lessons marked complete count toward completion. A lesson that is partly watched but not marked complete does not.
         * Only published lessons are included.
+        * `completed` uses the same rule as the member's progress bar: the percentage is rounded to a whole number, so on a course with 200 or more lessons a member can be complete with one lesson left.
         * `filter[updated_since]` matches member activity only. Publishing or unpublishing lessons changes `total_lessons` and `percent_complete` without changing `updated_at`.
         * `filter[updated_since]` never returns rows that moved to another customer in a contact merge, rows deleted as merge duplicates, or deleted members. Run a periodic full pass (no `filter[updated_since]`) to reconcile.
-        * Incremental sync: start each `filter[updated_since]` window at the time your previous sync started, minus a few minutes, not at the newest `updated_at` you received. A row that changes after your walk has passed it gets a timestamp older than rows returned later in the same walk, so a window that starts at the newest `updated_at` skips it until it changes again. On a large course a full walk takes thousands of requests, so that gap is wide. The same margin covers rows whose insert commits after a higher `id` was already returned.
+        * Incremental sync: start each `filter[updated_since]` window at the time your previous sync started, minus a few minutes, not at the newest `updated_at` you received. A row that changes after your walk has passed it gets a timestamp older than rows returned later in the same walk, so a window that starts at the newest `updated_at` skips it until it changes again. On a large course a full walk takes thousands of requests, so that gap is wide. The same margin covers progress that was still being saved while your walk ran.
         * Results are always ordered by `id`. The `sort` parameter is not supported.
         * Pages are cursor based. Follow `links.next`; it is absent on the last page. `page[after]` is the `id` of the last row returned. There is no `meta.total`.
         * `page[size]` defaults to 30 and is capped at 100.
@@ -5891,7 +5892,7 @@ paths:
         The actual payloads are sent to the `target_url` as a POST request with the following JSON body:
         ```json
         {
-          "id": "hash_id",
+          "id": "6f1c2a4e-3b7d-11ef-9a52-0242ac120002",
           "event": "tag_added",
           "payload": [],
         }
@@ -6018,7 +6019,7 @@ paths:
         The actual payloads are sent to the `target_url` as a POST request with the following JSON body:
         ```json
         {
-          "id": "hash_id",
+          "id": "6f1c2a4e-3b7d-11ef-9a52-0242ac120002",
           "event": "tag_removed",
           "payload": [],
         }
@@ -6156,7 +6157,7 @@ paths:
         The actual payloads are sent to the `target_url` as a POST request with the following JSON body:
         ```json
         {
-          "id": "hash_id",
+          "id": "6f1c2a4e-3b7d-11ef-9a52-0242ac120002",
           "event": "form_submission",
           "payload": [],
         }
@@ -6359,7 +6360,7 @@ paths:
         The actual payloads are sent to the `target_url` as a POST request with the following JSON body:
         ```json
         {
-          "id": "hash_id",
+          "id": "6f1c2a4e-3b7d-11ef-9a52-0242ac120002",
           "event": "purchase",
           "payload": [],
         }
@@ -6548,7 +6549,7 @@ paths:
         The actual payloads are sent to the `target_url` as a POST request with the following JSON body:
         ```json
         {
-          "id": "hash_id",
+          "id": "6f1c2a4e-3b7d-11ef-9a52-0242ac120002",
           "event": "payment_succeeded",
           "payload": [],
         }
@@ -6792,7 +6793,7 @@ paths:
         The actual payloads are sent to the `target_url` as a POST request with the following JSON body:
         ```json
         {
-          "id": "hash_id",
+          "id": "6f1c2a4e-3b7d-11ef-9a52-0242ac120002",
           "event": "order_created",
           "payload": [],
         }
@@ -7079,13 +7080,14 @@ paths:
         * Fires each time a lesson is marked complete for a member, including a lesson that was already complete. Marking a lesson incomplete sends nothing.
         * Marking a live session complete in the admin marks its lesson complete for every member of the course, so expect a burst of events.
         * For a cohort course, the `courses` resource is a cohort product. The public API does not support cohort courses, so `GET /v1/courses/{id}` returns 404 for it.
+        * Delivery isn't guaranteed: rarely, an event is never sent. Run a periodic full pass of `GET /v1/course_progress` to catch anything missed.
         * Kajabi can occasionally send the same event twice, and a duplicate can arrive with a different `id`, so dedupe on the customer `id`, the lesson `id`, and `meta.completed_at`.
 
         ## Actual Payloads
         The actual payloads are sent to the `target_url` as a POST request with the following JSON body:
         ```json
         {
-          "id": "hash_id",
+          "id": "6f1c2a4e-3b7d-11ef-9a52-0242ac120002",
           "event": "lesson_completed",
           "payload": [],
         }
@@ -7206,7 +7208,7 @@ paths:
               }
             },
             "meta": {
-              "started_at": "2025-07-31T16:51:04.010Z"
+              "started_at": "2025-07-31T16:51:04.000Z"
             }
           },
           {
@@ -7243,13 +7245,14 @@ paths:
         * It can be missed when the member's only earlier completions were on lessons that have since been deleted or unpublished.
         * In a one-lesson course, a single lesson mark sends both `course_started` and `course_completed`.
         * For a cohort course, the `courses` resource is a cohort product. The public API does not support cohort courses, so `GET /v1/courses/{id}` returns 404 for it.
+        * Delivery isn't guaranteed: rarely, an event is never sent. Run a periodic full pass of `GET /v1/course_progress` to catch anything missed.
         * Kajabi can occasionally send the same event twice, and a duplicate can arrive with a different `id`, so dedupe on the customer `id`, the course `id`, and `meta.started_at`.
 
         ## Actual Payloads
         The actual payloads are sent to the `target_url` as a POST request with the following JSON body:
         ```json
         {
-          "id": "hash_id",
+          "id": "6f1c2a4e-3b7d-11ef-9a52-0242ac120002",
           "event": "course_started",
           "payload": [],
         }
@@ -7360,7 +7363,7 @@ paths:
               }
             },
             "meta": {
-              "completed_at": "2025-07-31T16:51:04.010Z"
+              "completed_at": "2025-07-31T16:51:04.000Z"
             }
           },
           {
@@ -7393,16 +7396,17 @@ paths:
         ]
         ```
         ## Behavior
-        * Fires on every lesson mark while the course is complete, so it can fire more than once for the same member and course. Complete means the course shows 100% on the member's progress bar.
+        * Fires on every lesson mark while the course is complete, so it can fire more than once for the same member and course. Complete uses the same rule as the member's progress bar in Kajabi: the course shows 100%. That percentage is rounded to a whole number, so on a course with 200 or more lessons a member can be complete with one lesson left.
         * In a one-lesson course, a single lesson mark sends both `course_started` and `course_completed`.
         * For a cohort course, the `courses` resource is a cohort product. The public API does not support cohort courses, so `GET /v1/courses/{id}` returns 404 for it.
+        * Delivery isn't guaranteed: rarely, an event is never sent. Run a periodic full pass of `GET /v1/course_progress` to catch anything missed.
         * Kajabi can occasionally send the same event twice, and a duplicate can arrive with a different `id`, so dedupe on the customer `id`, the course `id`, and `meta.completed_at`.
 
         ## Actual Payloads
         The actual payloads are sent to the `target_url` as a POST request with the following JSON body:
         ```json
         {
-          "id": "hash_id",
+          "id": "6f1c2a4e-3b7d-11ef-9a52-0242ac120002",
           "event": "course_completed",
           "payload": [],
         }
@@ -7516,17 +7520,19 @@ paths:
         ]
         ```
         ## Behavior
-        * Fires once, when the assessment is submitted. Grading it later sends nothing.
+        * Fires once, when the assessment is submitted.
         * Identifies the submitter by contact, so submitters who are not members are included.
-        * `grade` is the percentage of correct answers. A result that still needs manual grading sends `passed: null` and `grade: null`.
+        * `grade` is the percentage of multiple-choice and multiple-select answers that are correct. Paragraph, file-upload and unanswered questions don't count, and if there are none, `grade` is 0.
+        * If automatic grading was off when the assessment was submitted, `passed` and `grade` are `null`.
         * The payload has no answers, question text, or file links.
+        * Delivery isn't guaranteed: rarely, an event is never sent.
         * Kajabi can occasionally send the same event twice, and a duplicate can arrive with a different `id`, so dedupe on the `assessment_results` `id`.
 
         ## Actual Payloads
         The actual payloads are sent to the `target_url` as a POST request with the following JSON body:
         ```json
         {
-          "id": "hash_id",
+          "id": "6f1c2a4e-3b7d-11ef-9a52-0242ac120002",
           "event": "assessment_completed",
           "payload": [],
         }
@@ -7587,7 +7593,9 @@ paths:
                             type:
                             - integer
                             - 'null'
-                            description: Percentage of correct answers
+                            description: Percentage of multiple-choice and multiple-select
+                              answers that are correct. Null if automatic grading
+                              was off when the assessment was submitted.
                           submitted_at:
                             type: string
                             format: date-time
@@ -7667,7 +7675,7 @@ paths:
         * Fires on every tracked sign-in. That includes the automatic sign-in after checkout, remember-me sign-ins, invite links, and single sign-on.
         * In the mobile apps, the app's own login doesn't fire it, but an in-app web view that starts a session does. A refresh of the member's product list also fires it when their last tracked sign-in is more than 24 hours old.
         * Login links don't fire it.
-        * Best effort: signing in never fails because of this webhook. If the background job can't be queued, that event is dropped and never retried. During a queue outage some events arrive late, or not at all if a server restarts first.
+        * Signing in never fails because of this webhook. Rarely, this event arrives late or is never sent.
         * The customer's `last_sign_in_at` is the latest tracked sign-in, the same signal that fires this event.
         * Kajabi can occasionally send the same event twice, and a duplicate can arrive with a different `id`, so dedupe on the customer `id` and `meta.signed_in_at`.
 
@@ -7675,7 +7683,7 @@ paths:
         The actual payloads are sent to the `target_url` as a POST request with the following JSON body:
         ```json
         {
-          "id": "hash_id",
+          "id": "6f1c2a4e-3b7d-11ef-9a52-0242ac120002",
           "event": "member_signed_in",
           "payload": [],
         }
