@@ -4279,10 +4279,10 @@ paths:
               "net_revenue": "0.0",
               "sign_in_count": 0,
               "last_request_at": null,
-              "last_sign_in_at": null,
               "bounced_at": null,
               "created_at": "2021-01-01T00:00:00Z",
-              "updated_at": "2021-01-01T00:00:00Z"
+              "updated_at": "2021-01-01T00:00:00Z",
+              "last_sign_in_at": null
             },
             "links": {
               "contact": "https://app.kajabi.com/api/v1/contacts/321"
@@ -5686,7 +5686,7 @@ paths:
         {
           "id": "6f1c2a4e-3b7d-11ef-9a52-0242ac120002",
           "event": "tag_added",
-          "payload": [],
+          "payload": []
         }
         ```
         The `id` is a UUID for this delivery. Each hook gets its own `id` for each event. A retry of the same delivery keeps its `id`, but a rare duplicate can arrive with a new one.
@@ -5697,9 +5697,9 @@ paths:
         * Kajabi can occasionally send the same event twice, and the duplicate can arrive with a different `id`. For member activity events, dedupe on the payload instead: the customer `id`, the lesson or course `id` when there is one, and the `meta` timestamp, or the `assessment_results` `id` for `assessment_completed`. Each member activity sample lists its exact fields.
         * Any response other than 2xx, 410 or 429, no response within 30 seconds, or a connection failure gets one attempt and is not retried.
         * A 429 response is retried later.
-        * A delivery that fails on Kajabi's side is retried with the same `id`.
         * A 410 response deletes the hook.
         * Events are not ordered. Don't rely on one event arriving before another, even for the same member.
+        * Delivery isn't guaranteed. Rarely, an event is never sent.
         * Payloads are not signed.
       tags:
       - Webhooks
@@ -5896,7 +5896,7 @@ paths:
         {
           "id": "6f1c2a4e-3b7d-11ef-9a52-0242ac120002",
           "event": "tag_added",
-          "payload": [],
+          "payload": []
         }
         ```
         The `payload` array is the sample response above
@@ -6023,7 +6023,7 @@ paths:
         {
           "id": "6f1c2a4e-3b7d-11ef-9a52-0242ac120002",
           "event": "tag_removed",
-          "payload": [],
+          "payload": []
         }
         ```
         The `payload` array is the sample response above
@@ -6161,7 +6161,7 @@ paths:
         {
           "id": "6f1c2a4e-3b7d-11ef-9a52-0242ac120002",
           "event": "form_submission",
-          "payload": [],
+          "payload": []
         }
         ```
         The `payload` array is the sample response above
@@ -6327,7 +6327,8 @@ paths:
               "last_request_at": null,
               "bounced_at": null,
               "created_at": "2025-07-31T16:59:27.552Z",
-              "updated_at": "2025-07-31T16:59:27.552Z"
+              "updated_at": "2025-07-31T16:59:27.552Z",
+              "last_sign_in_at": null
             },
             "links": {
               "contact": "https://www.kajabi.test/api/v1/contacts/0"
@@ -6364,7 +6365,7 @@ paths:
         {
           "id": "6f1c2a4e-3b7d-11ef-9a52-0242ac120002",
           "event": "purchase",
-          "payload": [],
+          "payload": []
         }
         ```
         The `payload` array is the sample response above
@@ -6516,7 +6517,8 @@ paths:
               "last_request_at": null,
               "bounced_at": null,
               "created_at": "2025-07-31T17:10:19.243Z",
-              "updated_at": "2025-07-31T17:10:19.243Z"
+              "updated_at": "2025-07-31T17:10:19.243Z",
+              "last_sign_in_at": null
             },
             "links": {
               "contact": "https://www.kajabi.test/api/v1/contacts/0"
@@ -6553,7 +6555,7 @@ paths:
         {
           "id": "6f1c2a4e-3b7d-11ef-9a52-0242ac120002",
           "event": "payment_succeeded",
-          "payload": [],
+          "payload": []
         }
         ```
         The `payload` array is the sample response above
@@ -6690,7 +6692,8 @@ paths:
               "last_request_at": null,
               "bounced_at": null,
               "created_at": "2025-07-31T17:13:05.207Z",
-              "updated_at": "2025-07-31T17:13:05.207Z"
+              "updated_at": "2025-07-31T17:13:05.207Z",
+              "last_sign_in_at": null
             },
             "links": {
               "contact": "https://www.kajabi.test/api/v1/contacts/0"
@@ -6797,7 +6800,7 @@ paths:
         {
           "id": "6f1c2a4e-3b7d-11ef-9a52-0242ac120002",
           "event": "order_created",
-          "payload": [],
+          "payload": []
         }
         ```
         The `payload` array is the sample response above
@@ -7091,7 +7094,7 @@ paths:
         {
           "id": "6f1c2a4e-3b7d-11ef-9a52-0242ac120002",
           "event": "lesson_completed",
-          "payload": [],
+          "payload": []
         }
         ```
         The `payload` array is the sample response above
@@ -7256,7 +7259,7 @@ paths:
         {
           "id": "6f1c2a4e-3b7d-11ef-9a52-0242ac120002",
           "event": "course_started",
-          "payload": [],
+          "payload": []
         }
         ```
         The `payload` array is the sample response above
@@ -7410,7 +7413,7 @@ paths:
         {
           "id": "6f1c2a4e-3b7d-11ef-9a52-0242ac120002",
           "event": "course_completed",
-          "payload": [],
+          "payload": []
         }
         ```
         The `payload` array is the sample response above
@@ -7536,7 +7539,7 @@ paths:
         {
           "id": "6f1c2a4e-3b7d-11ef-9a52-0242ac120002",
           "event": "assessment_completed",
-          "payload": [],
+          "payload": []
         }
         ```
         The `payload` array is the sample response above
@@ -7633,12 +7636,12 @@ paths:
               "public_website": null,
               "socials": null,
               "net_revenue": "0.0",
-              "sign_in_count": 0,
+              "sign_in_count": 1,
               "last_request_at": null,
               "bounced_at": null,
               "created_at": "2025-07-31T16:51:04.010Z",
               "updated_at": "2025-07-31T16:51:04.010Z",
-              "last_sign_in_at": null
+              "last_sign_in_at": "2025-07-31T16:51:04.010Z"
             },
             "links": {
               "contact": "https://www.kajabi.test/api/v1/contacts/0"
@@ -7687,7 +7690,7 @@ paths:
         {
           "id": "6f1c2a4e-3b7d-11ef-9a52-0242ac120002",
           "event": "member_signed_in",
-          "payload": [],
+          "payload": []
         }
         ```
         The `payload` array is the sample response above
@@ -11924,6 +11927,7 @@ components:
           description: ISO 8601 date-time, read only
         last_sign_in_at:
           type: string
+          format: date-time
           nullable: true
           description: ISO 8601 date-time, read only
         bounced_at:
