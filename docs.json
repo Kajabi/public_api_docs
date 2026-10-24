@@ -62,6 +62,12 @@
               "api-reference/introduction",
               "api-reference/authentication"
             ]
+          },
+          {
+            "group": "Guides",
+            "pages": [
+              "api-reference/member-activity"
+            ]
           }
         ]
       },
