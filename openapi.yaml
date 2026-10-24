@@ -12,7 +12,7 @@ info:
     * Endpoint paths are prefixed with `/v1`
     * Version endpoint `GET https://api.kajabi.com/v1/version`
     * See the [Developers Site](https://developers.kajabi.com) for documentation and examples.
-    * Try the demo [Postman collection](https://www.postman.com/kajabi-apis/beta-public-api-demo/collection/fg4iyaz/kajabi-public-api-v1)
+    * Try the demo [Postman collection](https://www.postman.com/kajabi-apis/workspace/kajabi-public-api-v1)
     ## API Keys
     * Your API `client_id` and `client_secret` are available on the [User API Keys](https://app.kajabi.com/admin/settings/security) section of the Kajabi Admin Portal.
       * Custom API Keys can be created with specific permissions.
@@ -5614,8 +5614,8 @@ paths:
         | `tag_added` | Tag is added to a contact | `view:contacts` |
         | `tag_removed` | Tag is removed from a contact | `view:contacts` |
         | `lesson_completed` | A lesson is marked complete for a member | `view:course_progress` |
-        | `course_started` | A member completes their first lesson in a course | `view:course_progress` |
-        | `course_completed` | A member's progress in a course reaches 100% | `view:course_progress` |
+        | `course_started` | A member completes their first lesson in a course (can repeat, see the sample) | `view:course_progress` |
+        | `course_completed` | A member's progress in a course reaches 100% (can repeat, see the sample) | `view:course_progress` |
         | `assessment_completed` | Someone submits an assessment | `view:assessments` |
         | `member_signed_in` | A member signs in (see the sample for which sign-ins count) | `view:customers` |
 

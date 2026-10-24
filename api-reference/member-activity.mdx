@@ -23,8 +23,8 @@ See [Authentication](/api-reference/authentication) for exchanging the `client_i
 | Event | Fires when | Payload resources | Required API Scopes |
 |-|-|-|-|
 | `lesson_completed` | A lesson is marked complete for a member | `customers`, `lessons`, `courses` | `view:course_progress` |
-| `course_started` | A member completes their first lesson in a course | `customers`, `courses` | `view:course_progress` |
-| `course_completed` | A member's progress in a course reaches 100% | `customers`, `courses` | `view:course_progress` |
+| `course_started` | A member completes their first lesson in a course (can repeat, see the sample) | `customers`, `courses` | `view:course_progress` |
+| `course_completed` | A member's progress in a course reaches 100% (can repeat, see the sample) | `customers`, `courses` | `view:course_progress` |
 | `assessment_completed` | Someone submits an assessment | `contacts`, `assessments`, `assessment_results` | `view:assessments` |
 | `member_signed_in` | A member signs in | `customers` | `view:customers` |
 
