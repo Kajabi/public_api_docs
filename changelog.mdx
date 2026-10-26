@@ -1,6 +1,34 @@
 ---
 title: "Changelog"
 ---
+<Update label="October 26, 2026" description="1.2.0">
+
+Added five member activity webhook events: `lesson_completed`, `course_started`, `course_completed`, `assessment_completed`, and `member_signed_in`, each with a sample endpoint (`GET /v1/hooks/<event>_sample`). The list hooks `filter[event_eq]` parameter accepts the new event names. See the [Member Activity](/api-reference/member-activity) guide.
+
+Added the `GET /v1/course_progress` endpoint, which returns each member's progress in a course with per-lesson detail. It supports `filter[customer_id]` and `filter[updated_since]`, and pages with a cursor (`page[after]`, `page[size]`).
+
+Added `last_sign_in_at` to customers.
+
+Added the `view:course_progress` scope. A User API Key with `view:course_progress` can call `GET /v1/course_progress`. `assessment_completed` hooks require the `view:assessments` scope, which is not yet available on custom keys. Creating hooks still requires the account owner's key.
+
+Corrected the webhook `id` description: it is a UUID for each delivery, not the id of the resource that triggered the event. Added a Delivery section to the create hook docs covering duplicates, retries, hook deletion on a 410 response, ordering, and signing.
+
+Documented that a hook's `target_url` must use `https://`.
+
+Added `filter[published]` to the offers endpoint to return only published or only draft offers.
+
+Documented `discount_amount_in_cents` and `discount_amount_decimal` on purchase and transaction details (limited availability).
+
+Added offer plans. Offers now include `plan_changes_enabled`, and `plans` and `pricing_options` can be loaded with `include` (for example `GET /v1/offers/{id}?include=plans,pricing_options`).
+
+Added the `GET /v1/offers/{offer_id}/plans`, `GET /v1/offer_plans/{id}` and `GET /v1/offers/{offer_id}/pricing_options` endpoints.
+
+Changed the meaning of a purchase's `amount_in_cents`. It is now the list price of the pricing option bought, excluding any setup fee, or the amount the buyer chose for pay-what-you-want. It was the offer's main price.
+
+Added `plan_name`, `replaced_purchase_id` and `replacement_purchase_id` to purchases, `plan` and `pricing_option` relationships to purchases, and `filter[plan_id]` and `filter[pricing_option_id]` to the purchases endpoint. Order items now include `purchase_id`, `plan_id` and `pricing_option_id`.
+
+Updated the example payout id in the Kajabi Payments payouts docs to `kp_po_abc123`.
+</Update>
 <Update label="June 10, 2026" description="1.1.0">
 
 Added a `purchases` relationship to the transactions endpoint, listing the offer purchase(s) a transaction covers. A transaction covers multiple offer purchases when several offers are bundled into a single charge, which can occur when a checkout includes multiple order bumps, or for Cart or Invoice orders.
