@@ -52,7 +52,7 @@ The event time is in the `meta` of the `customers` resource: `meta.completed_at`
 
 ### course_completed
 
-* Fires on every lesson mark while the course is complete, so it can fire more than once for the same member and course. Complete uses the same rule as the member's progress bar in Kajabi: the course shows 100%. That means every published lesson is done.
+* Fires on every lesson mark while the course is complete, so it can fire more than once for the same member and course. Complete means every published lesson is marked complete.
 * Delivery isn't guaranteed: rarely, an event is never sent. Run a periodic full pass of `GET /v1/course_progress` to catch anything missed.
 
 ### Cohort courses
@@ -144,7 +144,7 @@ Because a failed delivery is not retried and an event can occasionally be lost, 
 * Deleted members are not returned.
 * Only lessons marked complete count toward completion. A lesson that is partly watched but not marked complete does not.
 * Only published lessons are included.
-* `completed` uses the same rule as the member's progress bar, so it is true only when every published lesson is done.
+* `completed` is true only when every published lesson is marked complete. `percent_complete` is rounded down to a whole number, so it only reaches 100 at full completion.
 
 ### Paging
 
