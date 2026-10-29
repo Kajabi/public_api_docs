@@ -7,6 +7,8 @@ Added five member activity webhook events: `lesson_completed`, `course_started`,
 
 Added the `GET /v1/course_progress` endpoint, which returns each member's progress in a course with per-lesson detail. It supports `filter[customer_id]` and `filter[updated_since]`, and pages with a cursor (`page[after]`, `page[size]`).
 
+As of October 29, 2026, course completion is exact: `completed` in `GET /v1/course_progress` and the `course_completed` webhook apply only when every published lesson is marked complete, and `percent_complete` is rounded down (2 of 3 lessons reads 66, not 67). Before that, the percent was rounded to the nearest whole number, so on a course with 200 or more lessons a member could read complete with one lesson left. Rows that changed did not get a new `updated_at`, so if you sync with `filter[updated_since]`, run one full pass to pick them up.
+
 Added `last_sign_in_at` to customers.
 
 Added the `view:course_progress` scope. A User API Key with `view:course_progress` can call `GET /v1/course_progress`. `assessment_completed` hooks require the `view:assessments` scope, which is not yet available on custom keys. Creating hooks still requires the account owner's key.

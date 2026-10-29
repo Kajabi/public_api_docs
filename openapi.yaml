@@ -2573,7 +2573,7 @@ paths:
         * Deleted members are not returned.
         * Only lessons marked complete count toward completion. A lesson that is partly watched but not marked complete does not.
         * Only published lessons are included.
-        * `completed` uses the same rule as the member's progress bar: the percentage is rounded to a whole number, so on a course with 200 or more lessons a member can be complete with one lesson left.
+        * `completed` is true only when every published lesson is marked complete. `percent_complete` is rounded down to a whole number, so it only reaches 100 at full completion.
         * `filter[updated_since]` matches member activity only. Publishing or unpublishing lessons changes `total_lessons` and `percent_complete` without changing `updated_at`.
         * `filter[updated_since]` never returns rows that moved to another customer in a contact merge, rows deleted as merge duplicates, or deleted members. Run a periodic full pass (no `filter[updated_since]`) to reconcile.
         * Incremental sync: start each `filter[updated_since]` window at the time your previous sync started, minus a few minutes, not at the newest `updated_at` you received. A row that changes after your walk has passed it gets a timestamp older than rows returned later in the same walk, so a window that starts at the newest `updated_at` skips it until it changes again. On a large course a full walk takes thousands of requests, so that gap is wide. The same margin covers progress that was still being saved while your walk ran.
@@ -7401,7 +7401,7 @@ paths:
         ]
         ```
         ## Behavior
-        * Fires on every lesson mark while the course is complete, so it can fire more than once for the same member and course. Complete uses the same rule as the member's progress bar in Kajabi: the course shows 100%. That percentage is rounded to a whole number, so on a course with 200 or more lessons a member can be complete with one lesson left.
+        * Fires on every lesson mark while the course is complete, so it can fire more than once for the same member and course. Complete means every published lesson is marked complete.
         * In a one-lesson course, a single lesson mark sends both `course_started` and `course_completed`.
         * For a cohort course, the `courses` resource is a cohort product. The public API does not support cohort courses, so `GET /v1/courses/{id}` returns 404 for it.
         * Delivery isn't guaranteed: rarely, an event is never sent. Run a periodic full pass of `GET /v1/course_progress` to catch anything missed.
