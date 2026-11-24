@@ -5,7 +5,7 @@ x-mint:
     enabled: true
 info:
   title: Kajabi API V1
-  version: 1.2.0
+  version: 1.3.0
   description: |
     ## Public API
     * Server URL `https://api.kajabi.com`
@@ -2228,6 +2228,12 @@ paths:
             application/vnd.api+json:
               schema:
                 "$ref": "#/components/schemas/errors_forbidden"
+        '422':
+          description: Unprocessable entity, the offer has an upcoming plan change
+          content:
+            application/vnd.api+json:
+              schema:
+                "$ref": "#/components/schemas/errors_unprocessable"
       requestBody:
         content:
           application/vnd.api+json:
@@ -2293,6 +2299,13 @@ paths:
             application/vnd.api+json:
               schema:
                 "$ref": "#/components/schemas/errors_forbidden"
+        '422':
+          description: Unprocessable entity, an offer to remove has an upcoming plan
+            change
+          content:
+            application/vnd.api+json:
+              schema:
+                "$ref": "#/components/schemas/errors_unprocessable"
       requestBody:
         content:
           application/vnd.api+json:
@@ -4711,6 +4724,12 @@ paths:
             application/vnd.api+json:
               schema:
                 "$ref": "#/components/schemas/errors_forbidden"
+        '422':
+          description: Unprocessable entity, the offer has an upcoming plan change
+          content:
+            application/vnd.api+json:
+              schema:
+                "$ref": "#/components/schemas/errors_unprocessable"
       requestBody:
         content:
           application/vnd.api+json:
@@ -4774,6 +4793,13 @@ paths:
             application/vnd.api+json:
               schema:
                 "$ref": "#/components/schemas/errors_forbidden"
+        '422':
+          description: Unprocessable entity, an offer to remove has an upcoming plan
+            change
+          content:
+            application/vnd.api+json:
+              schema:
+                "$ref": "#/components/schemas/errors_unprocessable"
       requestBody:
         content:
           application/vnd.api+json:
@@ -4786,6 +4812,209 @@ paths:
                     "$ref": "#/components/schemas/resource_identifier"
               required:
               - data
+  "/v1/email_categories":
+    get:
+      summary: List email categories
+      description: |
+        Lists a site's email categories. Every marketing email belongs to one. When the site offers
+        per-category email preferences, contacts can opt out of each category separately; otherwise their
+        only choice is to unsubscribe from all marketing email.
+        ## Email Category attributes
+        * `key` (string) - The category's identifier, also its `id`. It never changes. Built-in categories use
+          their name as the key (`general_marketing`, `product_information`, `event_information`,
+          `responsive_marketing`, `notifications`), and their keys appear in contact filters such as
+          `filter[general_marketing_subscribed]`. Custom categories use `mc_1`, `mc_2` and so on. A custom key is
+          only meaningful within its site: `mc_1` on one site and `mc_1` on another are different categories.
+        * `label` (string) - The category's name
+        * `description` (string) - What the category covers, or null
+        * `built_in` (boolean) - Whether this is one of the five built-in categories
+        * `archived` (boolean) - Whether the category is archived. Archived categories can't be used for new
+          emails, but contacts' opt-outs from them still apply.
+        * `archived_at` (string) - When the category was archived, or null
+        * `position` (integer) - The category's place in the site's display order, starting at 1, or null when
+          it's archived
+        * `default` (boolean) - Whether new emails get this category
+        ## Order
+        Live categories come first, in display order, then archived ones, most recently archived first.
+        ## Filter by Site ID
+        Categories belong to a site, so a request covers one site. Use the `filter[site_id]` parameter to pick it.
+        It's required when the account has more than one site.
+        * `GET /v1/email_categories?filter[site_id]=123`
+
+        ```json
+        {
+          "data": [
+            {
+              "id": "general_marketing",
+              "type": "email_categories",
+              "attributes": {
+                "key": "general_marketing",
+                "label": "General marketing",
+                "description": "Sales, discounts, promotions, and general updates on products you may be interested in.",
+                "built_in": true,
+                "archived": false,
+                "archived_at": null,
+                "position": 1,
+                "default": true
+              },
+              "relationships": {
+                "site": {
+                  "data": {
+                    "id": "123",
+                    "type": "sites"
+                  }
+                }
+              }
+            },
+            {
+              "id": "mc_1",
+              "type": "email_categories",
+              "attributes": {
+                "key": "mc_1",
+                "label": "Art Exhibitions",
+                "description": "New shows and openings",
+                "built_in": false,
+                "archived": false,
+                "archived_at": null,
+                "position": 2,
+                "default": false
+              },
+              "relationships": {
+                "site": {
+                  "data": {
+                    "id": "123",
+                    "type": "sites"
+                  }
+                }
+              }
+            }
+          ]
+        }
+        ```
+        ## Sparse Fields
+        Use the `fields[email_categories]` parameter to include only specific attributes:
+        * `GET /v1/email_categories?filter[site_id]=123&fields[email_categories]=key,label`
+      tags:
+      - Email Categories
+      security:
+      - Bearer: []
+      parameters:
+      - name: filter[site_id]
+        in: query
+        required: false
+        description: The site to list categories for, e.g. ?filter[site_id]=111. Required
+          when the account has more than one site.
+        schema:
+          type: string
+      - name: page[number]
+        in: query
+        required: false
+        schema:
+          type: number
+      - name: page[size]
+        in: query
+        required: false
+        description: Number of documents
+        schema:
+          type: number
+      - name: fields[email_categories]
+        in: query
+        required: false
+        description: Partial attributes as specified, e.g. fields[email_categories]=key,label
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success, list of the site's email categories
+          content:
+            application/vnd.api+json:
+              schema:
+                "$ref": "#/components/schemas/email_categories_index_response"
+        '400':
+          description: Bad request, filter[site_id] is missing and the account has
+            more than one site
+          content:
+            application/vnd.api+json:
+              schema:
+                "$ref": "#/components/schemas/errors_bad_request"
+        '401':
+          description: Unauthorized, Authorization header is missing or invalid
+          content:
+            application/vnd.api+json:
+              schema:
+                "$ref": "#/components/schemas/errors_unauthorized"
+        '403':
+          description: Forbidden, insufficient permission to access the resource
+          content:
+            application/vnd.api+json:
+              schema:
+                "$ref": "#/components/schemas/errors_forbidden"
+  "/v1/email_categories/{id}":
+    get:
+      summary: Email category details
+      description: |
+        Shows one of a site's email categories by its key, e.g. `general_marketing` or `mc_1`. Archived
+        categories can be shown too. See "List email categories" for the attributes.
+        ## Filter by Site ID
+        Custom keys are only meaningful within their site, so use the `filter[site_id]` parameter to pick it.
+        It's required when the account has more than one site.
+        * `GET /v1/email_categories/mc_1?filter[site_id]=123`
+      tags:
+      - Email Categories
+      security:
+      - Bearer: []
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: The category's key
+        schema:
+          type: string
+      - name: filter[site_id]
+        in: query
+        required: false
+        description: The site the category belongs to, e.g. ?filter[site_id]=111.
+          Required when the account has more than one site.
+        schema:
+          type: string
+      - name: fields[email_categories]
+        in: query
+        required: false
+        description: Partial attributes as specified, e.g. fields[email_categories]=key,label
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Success, shows details of an email category
+          content:
+            application/vnd.api+json:
+              schema:
+                "$ref": "#/components/schemas/email_categories_show_response"
+        '400':
+          description: Bad request, filter[site_id] is missing and the account has
+            more than one site
+          content:
+            application/vnd.api+json:
+              schema:
+                "$ref": "#/components/schemas/errors_bad_request"
+        '401':
+          description: Unauthorized, Authorization header is missing or invalid
+          content:
+            application/vnd.api+json:
+              schema:
+                "$ref": "#/components/schemas/errors_unauthorized"
+        '403':
+          description: Forbidden, insufficient permission to access the resource
+          content:
+            application/vnd.api+json:
+              schema:
+                "$ref": "#/components/schemas/errors_forbidden"
+        '404':
+          description: Not found, the site has no category with this key
+          content:
+            application/vnd.api+json:
+              schema:
+                "$ref": "#/components/schemas/errors_not_found"
   "/v1/form_submissions":
     get:
       summary: List form submissions
@@ -5508,7 +5737,7 @@ paths:
     get:
       summary: List hooks
       description: |
-        Lists webhooks for a site
+        Lists webhooks for a site. Only webhooks for events your API key can read are returned; see the required scopes under "Create hook".
 
         ## Pagination
         Use `page[number]` and `page[size]` parameters to paginate results:
@@ -5603,13 +5832,15 @@ paths:
         * `event` - The type of event to subscribe to (see available events below), for example "tag_added"
         * `resource_id` (optional) - Specific resource ID to filter events for, for example the id of the Contact Tag. When the property is omitted, the webhook will be triggered for all events of the specified type, as a wildcard webhook.
 
+        If an identical webhook (same `target_url`, `event` and `resource_id`) is already registered, the existing webhook is returned with a `200` instead of creating a duplicate.
+
         ## Available Event Types
 
         | Event | Description | Required API Scopes |
         |-------|-------------|-------------------|
         | `purchase` | Customer makes a purchase | `view:purchases` |
         | `payment_succeeded` | Payment transaction completes successfully | `view:transactions` |
-        | `order_created` | New order is created | `view:transactions`, `view:orders` |
+        | `order_created` | New order is created | `view:transactions` |
         | `form_submission` | Someone submits a form | `view:form_submissions` |
         | `tag_added` | Tag is added to a contact | `view:contacts` |
         | `tag_removed` | Tag is removed from a contact | `view:contacts` |
@@ -5619,7 +5850,7 @@ paths:
         | `assessment_completed` | Someone submits an assessment | `view:assessments` |
         | `member_signed_in` | A member signs in (see the sample for which sign-ins count) | `view:customers` |
 
-        **Note**: You can only create webhooks for events you have permission to access based on your API key scopes. For example to use tags you need the `view:contacts` scope, which is included in the account owner api key scope.
+        **Note**: You can only create webhooks for events you have permission to access based on your API key scopes. For example to use tags you need the `view:contacts` scope, which is included in the account owner api key scope. The same scopes decide which webhooks you can list, view and delete.
 
         **`resource_id` by event**: for `lesson_completed`, `course_started` and `course_completed` it is a course id. For `assessment_completed` it is an assessment id. `member_signed_in` has no resource, so a `resource_id` filters nothing and the hook fires for every member.
 
@@ -5709,6 +5940,12 @@ paths:
       responses:
         '201':
           description: Success, webhook created
+          content:
+            application/vnd.api+json:
+              schema:
+                "$ref": "#/components/schemas/hooks_show_response"
+        '200':
+          description: Success, an identical webhook is already registered
           content:
             application/vnd.api+json:
               schema:
@@ -6239,6 +6476,9 @@ paths:
             "type": "purchases",
             "attributes": {
               "amount_in_cents": 1000,
+              "plan_name": "Kajabi Test Plan",
+              "replaced_purchase_id": null,
+              "replacement_purchase_id": null,
               "payment_type": "single",
               "multipay_payments_made": null,
               "opt_in": false,
@@ -6268,6 +6508,15 @@ paths:
                   "id": "0",
                   "type": "offers"
                 }
+              },
+              "plan": {
+                "data": {
+                  "id": "0",
+                  "type": "offer_plans"
+                }
+              },
+              "pricing_option": {
+                "data": null
               },
               "products": {
                 "data": []
@@ -11870,6 +12119,67 @@ components:
               type: string
             current:
               type: string
+    email_categories_attributes:
+      type: object
+      properties:
+        key:
+          type: string
+        label:
+          type: string
+        description:
+          type: string
+          nullable: true
+        built_in:
+          type: boolean
+        archived:
+          type: boolean
+        archived_at:
+          type: string
+          format: date-time
+          nullable: true
+        position:
+          type: integer
+          nullable: true
+        default:
+          type: boolean
+    email_categories_resource:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+        attributes:
+          "$ref": "#/components/schemas/email_categories_attributes"
+        relationships:
+          type: object
+          properties:
+            site:
+              type: object
+              properties:
+                data:
+                  "$ref": "#/components/schemas/resource_identifier"
+    email_categories_index_response:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            "$ref": "#/components/schemas/email_categories_resource"
+        links:
+          type: object
+          properties:
+            self:
+              type: string
+            current:
+              type: string
+    email_categories_show_response:
+      type: object
+      properties:
+        data:
+          "$ref": "#/components/schemas/email_categories_resource"
+      required:
+      - data
     customers_attributes:
       type: object
       properties:
