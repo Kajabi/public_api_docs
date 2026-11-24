@@ -1,7 +1,7 @@
 ---
 title: "Changelog"
 ---
-<Update label="<placeholder: merge date>" description="1.3.0">
+<Update label="November 24, 2026" description="1.3.0">
 
 Added the `GET /v1/email_categories` and `GET /v1/email_categories/{id}` endpoints. Every marketing email belongs to an email category. The list returns a site's live categories in display order, then archived ones, most recently archived first (`archived: true`, `position: null`); archived categories can't be used for new emails, but contacts' opt-outs from them still apply. The show endpoint returns one category by its key, archived or not. Built-in categories use their name as the key (`general_marketing`, `product_information`, `event_information`, `responsive_marketing`, `notifications`). Sites without custom categories return the five built-ins, with `general_marketing` marked `default`.
 
