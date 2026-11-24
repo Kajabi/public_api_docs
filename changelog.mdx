@@ -1,6 +1,24 @@
 ---
 title: "Changelog"
 ---
+<Update label="November 24, 2026" description="1.3.0">
+
+Added the `GET /v1/email_categories` and `GET /v1/email_categories/{id}` endpoints. Every marketing email belongs to an email category. The list returns a site's live categories in display order, then archived ones, most recently archived first (`archived: true`, `position: null`); archived categories can't be used for new emails, but contacts' opt-outs from them still apply. The show endpoint returns one category by its key, archived or not. Built-in categories use their name as the key (`general_marketing`, `product_information`, `event_information`, `responsive_marketing`, `notifications`). Sites without custom categories return the five built-ins, with `general_marketing` marked `default`.
+
+Custom category keys (`mc_1`, `mc_2`, …) are only unique within a site: `mc_1` on one site and `mc_1` on another are different categories. Use `filter[site_id]` to pick the site; it is required when the account has more than one site.
+
+Contact filters accept built-in category keys only for now (for example `filter[general_marketing_subscribed]`).
+
+Added the `view:email_categories` scope. The account owner's key gets it automatically. Custom API keys don't, and a key's scopes can't be changed after it's created, so create a new key with `view:email_categories` selected to call the new endpoints.
+
+Custom API keys can now be granted the `view:hooks`, `create:hooks` and `delete:hooks` scopes. Before, only the account owner's key could manage webhooks. Listing webhooks returns only webhooks for events your key's scopes can read, and the same scopes decide which webhooks you can view and delete.
+
+Creating a webhook that is already registered (same `target_url`, `event` and `resource_id`) now returns the existing webhook with a `200` instead of creating a duplicate.
+
+The `order_created` webhook now requires the `view:transactions` scope; `view:orders` alone no longer grants it.
+
+Removing an offer from a contact or customer returns a `422` when the offer has an upcoming plan change. This applies to `DELETE` on `/v1/contacts/{contact_id}/relationships/offers` and `/v1/customers/{customer_id}/relationships/offers`, and to a `PATCH` on those paths that would remove such an offer.
+</Update>
 <Update label="October 26, 2026" description="1.2.0">
 
 Added five member activity webhook events: `lesson_completed`, `course_started`, `course_completed`, `assessment_completed`, and `member_signed_in`, each with a sample endpoint (`GET /v1/hooks/<event>_sample`). The list hooks `filter[event_eq]` parameter accepts the new event names. See the [Member Activity](/api-reference/member-activity) guide.
